@@ -109,6 +109,9 @@ test.describe('mobile header', () => {
       panel.getByRole('link', { name: 'API Store', exact: true }),
     ).toBeVisible()
     await expect(panel.getByRole('link', { name: 'Pet', exact: true })).toBeVisible()
+    await expect(
+      panel.getByRole('button', { name: 'Versión', exact: true }),
+    ).toBeVisible()
   })
 })
 
@@ -142,13 +145,42 @@ test('blog lands on v1', async ({ page }) => {
   await expect(page).toHaveURL(/\/api-store\/blog\/v1\//)
 })
 
-for (const tag of ['posts', 'comments'])
-  test(`blog version switch keeps the ${tag} page`, async ({ page }) => {
-    await page.goto(`/api-store/blog/v1/${tag}`)
-    await page.getByRole('button', { name: 'v1', exact: true }).click()
-    await page.getByRole('link', { name: /^v2/ }).click()
-    await expect(page).toHaveURL(new RegExp(`/api-store/blog/v2/${tag}$`))
-  })
+const versionSelect = (page: Page) =>
+  page.locator('#nd-sidebar').getByRole('button', { name: 'Versión', exact: true })
+
+test('has no section switcher', async ({ page }) => {
+  for (const path of ['/docs/introduction', '/api-store/petstore/pet']) {
+    await page.goto(path)
+    const sidebar = page.locator('#nd-sidebar')
+    for (const section of ['Documentación', 'Petstore API', 'Blog API', 'Auth API'])
+      await expect(sidebar.getByRole('button', { name: section })).toHaveCount(0)
+  }
+  // The navbar links in the sidebar point to /docs and /api-store, not to their pages.
+  await expect(page.locator('#nd-sidebar a[href^="/docs/"]')).toHaveCount(0)
+})
+
+test('shows a disabled version selector for single-version APIs', async ({ page }) => {
+  for (const [path, version] of [
+    ['/api-store/petstore/pet', '1.0.19'],
+    ['/api-store/auth/auth', '2.0.0'],
+  ]) {
+    await page.goto(path)
+    await expect(versionSelect(page)).toHaveText(version)
+    await expect(versionSelect(page)).toBeDisabled()
+  }
+  await page.goto('/docs/introduction')
+  await expect(page.getByRole('button', { name: 'Versión' })).toHaveCount(0)
+})
+
+test('switches Blog versions to the matching page', async ({ page }) => {
+  await page.goto('/api-store/blog/v2/comments')
+  await expect(versionSelect(page)).toHaveText('2.0.0')
+  await expect(versionSelect(page)).toBeEnabled()
+  await versionSelect(page).click()
+  await expect(page.getByRole('link', { name: '2.0.0', exact: true })).toBeVisible()
+  await page.getByRole('link', { name: '1.0.0', exact: true }).click()
+  await expect(page).toHaveURL(/\/api-store\/blog\/v1\/comments$/)
+})
 
 test('petstore playground and auth are in spanish', async ({ page }) => {
   await page.goto('/api-store/petstore/pet')

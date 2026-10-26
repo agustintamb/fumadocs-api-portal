@@ -91,8 +91,16 @@ desde localhost) y acepta cualquier host público; para producción convendría 
   - El botón para contraer la barra lateral de escritorio (nativo del header de Fumadocs) no
     está en el header propio; `Ctrl+B` (⌘+B) sigue contrayéndola. No se agregó UI nueva.
   - La página 404 (`not-found.tsx`) usa el mismo header (`HomeHeader`).
-- **Pestañas de APIs**: `getLayoutTabs` no sirve porque Blog no tiene página propia (solo las
-  carpetas v1 y v2). Se escribió `getRootFolderTabs` (`src/utils/get-root-folder-tabs.ts`).
+- **Selector de versión**: la barra lateral muestra solo la sección actual (carpetas `root`); a
+  Docs y a las APIs se llega desde el navbar. Cada API tiene su propio tipo de `root` en
+  `meta.json` (`"petstore"`, `"auth"`, `"blog"` en v1 y v2), así el desplegable de Fumadocs
+  (`SidebarTabsDropdown`) agrupa solo las versiones de esa API. Las pestañas salen de
+  `getLayoutTabs` (`src/utils/get-version-tabs.ts`) con el `info.version` de cada spec como
+  título, leído con `getSchemas()` de fumadocs-openapi. El desplegable nativo del layout no se
+  puede deshabilitar, así que se desactiva (`tabs={false}`) y el mismo componente se monta en el
+  `banner` de la barra lateral (`src/components/VersionSelect/`) con `disabled` cuando la API
+  tiene una sola versión. Al cambiar de versión, Fumadocs lleva a la página equivalente
+  (`v2/comments` → `v1/comments`) o a la primera de la otra versión.
 - **Carpetas sin página**: `/api-store/petstore`, `/api-store/blog`, etc. no tienen página propia;
   se redirigen a la primera página de la carpeta (en `[...slug]/page.tsx`, con `flattenTree`).
 - **Títulos cortos en la barra lateral**: Fumadocs no tiene un campo para eso. Se agregó
@@ -114,7 +122,6 @@ desde localhost) y acepta cualquier host público; para producción convendría 
   prueba en el smoke test.
 - El buscador de la documentación (Orama) usa un tokenizador multilingüe y no distingue
   acentos ("pagina" encuentra "página"); no hace falta configurarlo.
-- El desplegable de pestañas de APIs también lista "Documentación".
 - La página 404 de la raíz (`src/app/not-found.tsx`) no está dentro de ningún layout: la barra
   superior aparece recién después de la hidratación y, con JavaScript desactivado, la respuesta es
   un shell `__next_error__` vacío.
@@ -126,9 +133,8 @@ desde localhost) y acepta cualquier host público; para producción convendría 
   podía ser raíz. Después se movió a `content/docs` (URL `/docs/introduction`), con `root: true`.
 - **Task 4**: el plan preveía un ajuste mínimo si la colección de contenido rechazaba carpetas
   que solo tienen `meta.json`. Tampoco hizo falta.
-- Desvíos que sí se tomaron: `getRootFolderTabs` en lugar de `getLayoutTabs` (ver arriba) y
-  `generateMetadata` devolviendo `{}` en lugar de `notFound()` cuando la URL es una carpeta, para
-  que la redirección a la primera página no termine en 404.
+- Desvío que sí se tomó: `generateMetadata` devolviendo `{}` en lugar de `notFound()` cuando la
+  URL es una carpeta, para que la redirección a la primera página no termine en 404.
 
 ## Otros detalles
 

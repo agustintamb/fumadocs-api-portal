@@ -14,6 +14,7 @@ export const es = {
     docs: 'Documentación',
     apiStore: 'API Store',
   },
+  versionSelect: 'Versión',
   footer: {
     label: 'Navegación del pie de página',
     pages: 'Páginas',

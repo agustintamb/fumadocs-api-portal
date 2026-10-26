@@ -102,10 +102,17 @@ reemplaza el archivo completo.
    orders: await apiSource(orders, 'api-store/orders/(generated)'),
    ```
 
-4. Crear `content/api-store/orders/meta.json`:
+   y sumarla a `getApiVersions()` en `src/lib/openapi.ts`, para el selector de versión:
+
+   ```ts
+   '/api-store/orders': orders,
+   ```
+
+4. Crear `content/api-store/orders/meta.json`. `root` lleva el id de la API, así el selector de
+   versión solo ofrece las versiones de esa API:
 
    ```json
-   { "title": "Orders API", "root": true, "pages": ["...(generated)"] }
+   { "title": "Orders API", "root": "orders", "pages": ["...(generated)"] }
    ```
 
 5. Agregar `"orders"` a `pages` en `content/api-store/meta.json`.
@@ -113,5 +120,5 @@ reemplaza el archivo completo.
    se leen del YAML) y, si corresponde, el link del footer en `src/data/footer.ts`.
 
 La ruta `/api-store/orders` redirige automáticamente a la primera página de la API. Para una
-API con versiones, se sigue el ejemplo de `content/api-store/blog/`: una carpeta por versión con
-`"root": "version"`.
+API con versiones, se sigue el ejemplo de `content/api-store/blog/`: una carpeta por versión, todas
+con el id de la API como `root` (en Blog, `"blog"`), y una entrada por versión en `getApiVersions()`.

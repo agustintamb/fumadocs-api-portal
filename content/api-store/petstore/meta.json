@@ -1,1 +1,1 @@
-{ "title": "Petstore API", "root": true, "pages": ["...(generated)"] }
+{ "title": "Petstore API", "root": "petstore", "pages": ["...(generated)"] }

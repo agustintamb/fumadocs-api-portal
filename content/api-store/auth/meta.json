@@ -1,1 +1,1 @@
-{ "title": "Auth API", "root": true, "pages": ["...(generated)"] }
+{ "title": "Auth API", "root": "auth", "pages": ["...(generated)"] }
