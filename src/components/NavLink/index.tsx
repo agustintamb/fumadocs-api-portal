@@ -19,7 +19,7 @@ export function NavLink({ href, match, children }: NavLinkProps) {
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className="text-fd-muted-foreground hover:text-fd-accent-foreground aria-[current=page]:text-fd-primary text-sm transition-colors aria-[current=page]:font-medium max-lg:py-1.5"
+      className="text-fd-muted-foreground hover:text-fd-accent-foreground aria-[current=page]:text-fd-primary text-sm transition-colors aria-[current=page]:font-medium"
     >
       {children}
     </Link>

@@ -1,17 +1,18 @@
 import Image from 'next/image'
-import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared'
+import type { BaseLayoutProps, LinkItemType } from 'fumadocs-ui/layouts/shared'
 import { NavLink } from '@/components/NavLink'
-import type { NavLinkProps } from '@/components/NavLink'
 import { es } from '@/i18n/es'
+import type { NavLinkMatch } from '@/utils/is-nav-link-active'
 
-const NAV_LINKS: (Omit<NavLinkProps, 'children'> & { text: string })[] = [
-  { text: es.nav.home, href: '/home', match: 'url' },
-  { text: es.nav.dashboard, href: '/dashboard', match: 'url' },
-  { text: es.nav.docs, href: '/introduction', match: 'nested-url' },
-  { text: es.nav.apiStore, href: '/api-store', match: 'nested-url' },
+const NAV_LINKS: { text: string; url: string; active: NavLinkMatch }[] = [
+  { text: es.nav.home, url: '/home', active: 'url' },
+  { text: es.nav.dashboard, url: '/dashboard', active: 'url' },
+  { text: es.nav.docs, url: '/introduction', active: 'nested-url' },
+  { text: es.nav.apiStore, url: '/api-store', active: 'nested-url' },
 ]
 
-export function baseOptions(): BaseLayoutProps {
+// The home header renders custom nav items directly inside a `ul`; the docs header uses a `div`.
+export function baseOptions(layout: 'home' | 'docs' = 'docs'): BaseLayoutProps {
   return {
     nav: {
       title: (
@@ -35,9 +36,21 @@ export function baseOptions(): BaseLayoutProps {
       ),
       url: '/home',
     },
-    links: NAV_LINKS.map(({ text, ...link }) => ({
-      type: 'custom',
-      children: <NavLink {...link}>{text}</NavLink>,
-    })),
+    // Custom items expose aria-current on the desktop bar; native items close the mobile menu.
+    links: [
+      ...NAV_LINKS.map(({ text, url, active }): LinkItemType => {
+        const link = (
+          <NavLink href={url} match={active}>
+            {text}
+          </NavLink>
+        )
+        return {
+          type: 'custom',
+          on: 'nav',
+          children: layout === 'home' ? <li className="list-none">{link}</li> : link,
+        }
+      }),
+      ...NAV_LINKS.map((link): LinkItemType => ({ type: 'main', on: 'menu', ...link })),
+    ],
   }
 }

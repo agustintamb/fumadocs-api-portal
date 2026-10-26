@@ -4,7 +4,7 @@ import { baseOptions } from '@/lib/layout.shared'
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
-    <HomeLayout {...baseOptions()}>
+    <HomeLayout {...baseOptions('home')}>
       {children}
       <SiteFooter />
     </HomeLayout>
