@@ -1,0 +1,439 @@
+openapi: 3.0.3
+info:
+  title: Auth API
+  description: |
+    Authentication and authorization service.
+    Handles user registration, login, token refresh, and profile management.
+    Uses JWT-based stateless authentication.
+  version: 2.0.0
+  contact:
+    name: Auth Team
+    email: auth@example.com
+
+servers:
+  - url: https://auth.example.com/v2
+    description: Production
+  - url: https://staging-auth.example.com/v2
+    description: Staging
+
+tags:
+  - name: auth
+    description: Authentication flows
+  - name: users
+    description: User account management
+  - name: tokens
+    description: Token operations
+
+paths:
+  /auth/register:
+    post:
+      tags: [auth]
+      summary: Register a new user
+      description: Creates a new user account and returns a JWT token pair.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+            example:
+              email: "user@example.com"
+              password: "SecurePass123!"
+              name: "John Doe"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: Email already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Login
+      description: Authenticates a user and returns a JWT access token and refresh token.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            example:
+              email: "user@example.com"
+              password: "SecurePass123!"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Logout
+      description: Invalidates the current refresh token.
+      operationId: logout
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "204":
+          description: Logged out successfully
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/refresh:
+    post:
+      tags: [tokens]
+      summary: Refresh access token
+      description: Exchanges a valid refresh token for a new access token.
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+                  description: A valid, non-expired refresh token
+      responses:
+        "200":
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  expiresIn:
+                    type: integer
+                    example: 3600
+        "401":
+          description: Refresh token invalid or expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/forgot-password:
+    post:
+      tags: [auth]
+      summary: Request password reset
+      description: Sends a password reset email to the user.
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Reset email sent if account exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "If that email exists, a reset link was sent."
+
+  /auth/reset-password:
+    post:
+      tags: [auth]
+      summary: Reset password
+      description: Resets the user password using a token from the reset email.
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, newPassword]
+              properties:
+                token:
+                  type: string
+                newPassword:
+                  type: string
+                  minLength: 8
+      responses:
+        "204":
+          description: Password reset successfully
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          description: Token invalid or expired
+
+  /users/me:
+    get:
+      tags: [users]
+      summary: Get current user
+      description: Returns the authenticated user's profile.
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    patch:
+      tags: [users]
+      summary: Update profile
+      description: Updates the current user's profile information.
+      operationId: updateProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/me/password:
+    put:
+      tags: [users]
+      summary: Change password
+      operationId: changePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+                  minLength: 8
+      responses:
+        "204":
+          description: Password changed
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /tokens/verify:
+    post:
+      tags: [tokens]
+      summary: Verify a token
+      description: Validates an access token and returns its claims.
+      operationId: verifyToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenClaims"
+        "401":
+          description: Token invalid or expired
+
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          description: Must contain uppercase, lowercase, number, and special character
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        accessToken:
+          type: string
+          description: JWT access token (expires in 1 hour)
+        refreshToken:
+          type: string
+          description: Refresh token (expires in 30 days)
+        expiresIn:
+          type: integer
+          example: 3600
+          description: Access token TTL in seconds
+
+    User:
+      type: object
+      required: [id, email, name, createdAt]
+      properties:
+        id:
+          type: string
+          example: "user_abc123"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        name:
+          type: string
+          example: "John Doe"
+        avatar:
+          type: string
+          format: uri
+        role:
+          type: string
+          enum: [user, admin, moderator]
+          example: "user"
+        emailVerified:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        avatar:
+          type: string
+          format: uri
+
+    TokenClaims:
+      type: object
+      properties:
+        sub:
+          type: string
+          description: User ID
+        email:
+          type: string
+        role:
+          type: string
+        iat:
+          type: integer
+          description: Issued at (Unix timestamp)
+        exp:
+          type: integer
+          description: Expires at (Unix timestamp)
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: "INVALID_CREDENTIALS"
+        message:
+          type: string
+          example: "Email or password is incorrect."
+        details:
+          type: object
+
+  responses:
+    BadRequest:
+      description: Invalid request body
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Not authenticated
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Access token obtained from /auth/login or /auth/register.
+        Format: `Authorization: Bearer <token>`

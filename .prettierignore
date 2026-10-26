@@ -1,0 +1,7 @@
+.next
+.source
+node_modules
+apis
+.superpowers
+playwright-report
+test-results
