@@ -3,12 +3,17 @@ import { DocsLayout } from 'fumadocs-ui/layouts/notebook'
 import { DocsHeader } from '@/components/SiteHeader/DocsHeader'
 import { VersionSelect } from '@/components/VersionSelect'
 import { baseOptions } from '@/lib/layout.shared'
-import { getApiVersions } from '@/lib/openapi'
 import { getVersionTabs } from '@/utils/get-version-tabs'
 
-export default async function Layout({ children }: LayoutProps<'/'>) {
+// Generated API pages carry their spec; MDX pages don't, so Docs gets no version selector.
+function getSpecVersion(url: string): string | undefined {
+  const data = source.getPageByHref(url)?.page.data
+  return data && 'getSchema' in data ? data.getSchema().bundled.info?.version : undefined
+}
+
+export default function Layout({ children }: LayoutProps<'/'>) {
   const tree = source.getPageTree()
-  const versionTabs = getVersionTabs(tree, await getApiVersions())
+  const versionTabs = getVersionTabs(tree, getSpecVersion)
 
   // Notebook is the only docs layout whose header (`nav.mode: 'top'`) spans the full width.
   // Fumadocs' own tabs dropdown can't be disabled, so the version selector goes in the banner.

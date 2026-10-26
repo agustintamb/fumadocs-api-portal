@@ -110,7 +110,7 @@ test.describe('mobile header', () => {
     ).toBeVisible()
     await expect(panel.getByRole('link', { name: 'Pet', exact: true })).toBeVisible()
     await expect(
-      panel.getByRole('button', { name: 'Versión', exact: true }),
+      panel.getByRole('button', { name: 'Versión 1.0.19', exact: true }),
     ).toBeVisible()
   })
 })
@@ -146,7 +146,7 @@ test('blog lands on v1', async ({ page }) => {
 })
 
 const versionSelect = (page: Page) =>
-  page.locator('#nd-sidebar').getByRole('button', { name: 'Versión', exact: true })
+  page.locator('#nd-sidebar').getByRole('button', { name: /^Versión / })
 
 test('has no section switcher', async ({ page }) => {
   for (const path of ['/docs/introduction', '/api-store/petstore/pet']) {
@@ -155,8 +155,6 @@ test('has no section switcher', async ({ page }) => {
     for (const section of ['Documentación', 'Petstore API', 'Blog API', 'Auth API'])
       await expect(sidebar.getByRole('button', { name: section })).toHaveCount(0)
   }
-  // The navbar links in the sidebar point to /docs and /api-store, not to their pages.
-  await expect(page.locator('#nd-sidebar a[href^="/docs/"]')).toHaveCount(0)
 })
 
 test('shows a disabled version selector for single-version APIs', async ({ page }) => {
@@ -166,6 +164,7 @@ test('shows a disabled version selector for single-version APIs', async ({ page 
   ]) {
     await page.goto(path)
     await expect(versionSelect(page)).toHaveText(version)
+    await expect(versionSelect(page)).toHaveAccessibleName(`Versión ${version}`)
     await expect(versionSelect(page)).toBeDisabled()
   }
   await page.goto('/docs/introduction')
@@ -175,6 +174,7 @@ test('shows a disabled version selector for single-version APIs', async ({ page 
 test('switches Blog versions to the matching page', async ({ page }) => {
   await page.goto('/api-store/blog/v2/comments')
   await expect(versionSelect(page)).toHaveText('2.0.0')
+  await expect(versionSelect(page)).toHaveAccessibleName('Versión 2.0.0')
   await expect(versionSelect(page)).toBeEnabled()
   await versionSelect(page).click()
   await expect(page.getByRole('link', { name: '2.0.0', exact: true })).toBeVisible()

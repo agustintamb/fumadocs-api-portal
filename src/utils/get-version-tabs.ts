@@ -5,16 +5,16 @@ import type { LayoutTab } from 'fumadocs-ui/layouts/shared'
 /**
  * One layout tab per API version folder, titled with its spec version.
  *
- * `versions` maps a version folder URL (e.g. `/api-store/blog/v1`) to its `info.version`.
+ * `getVersion` returns the spec version of the page at a URL, or `undefined` if it isn't an API page.
  */
 export function getVersionTabs(
   tree: PageTree.Root,
-  versions: Record<string, string>,
+  getVersion: (url: string) => string | undefined,
 ): LayoutTab[] {
   return getLayoutTabs(tree, {
     transform(tab) {
-      const folderUrl = Object.keys(versions).find((url) => tab.url.startsWith(`${url}/`))
-      return folderUrl ? { ...tab, title: versions[folderUrl] } : null
+      const version = getVersion(tab.url)
+      return version ? { ...tab, title: version } : null
     },
   })
 }

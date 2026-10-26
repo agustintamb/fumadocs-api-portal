@@ -1,8 +1,9 @@
 'use client'
 
+import { usePathname } from 'fumadocs-core/framework'
 import { SidebarTabsDropdown } from 'fumadocs-ui/components/sidebar/tabs/dropdown'
-import { useTabsGroups } from 'fumadocs-ui/contexts/tree'
-import type { LayoutTab } from 'fumadocs-ui/layouts/shared'
+import { useTabsGroups, useTreePath } from 'fumadocs-ui/contexts/tree'
+import { isLayoutTabActive, type LayoutTab } from 'fumadocs-ui/layouts/shared'
 import { es } from '@/i18n/es'
 
 export interface VersionSelectProps {
@@ -13,14 +14,18 @@ export interface VersionSelectProps {
 // and none outside the APIs.
 export function VersionSelect({ tabs }: VersionSelectProps) {
   const versions = useTabsGroups(tabs)[0]?.options ?? []
+  const path = useTreePath()
+  const pathname = usePathname()
+  // Same lookup as Fumadocs' dropdown, so the accessible name includes the version it shows.
+  const selected = versions.findLast((tab) => isLayoutTabActive(tab, path, pathname))
 
   return (
     <SidebarTabsDropdown
       options={tabs}
-      aria-label={es.versionSelect}
+      aria-label={selected ? `${es.versionSelect} ${selected.title}` : es.versionSelect}
       disabled={versions.length < 2}
-      // Without this the disabled button still gets the hover highlight.
-      className="disabled:pointer-events-none"
+      // Without pointer-events-none the disabled button still gets the hover highlight.
+      className="disabled:text-fd-muted-foreground disabled:pointer-events-none"
     />
   )
 }

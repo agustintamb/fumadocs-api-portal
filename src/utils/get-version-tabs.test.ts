@@ -25,16 +25,17 @@ const tree: PageTree.Root = {
   children: [docs, folder('API Store', undefined, [petstore, blog])],
 }
 
-const versions = {
-  '/api-store/petstore': '1.0.19',
-  '/api-store/blog/v1': '1.0.0',
-  '/api-store/blog/v2': '2.0.0',
+const versions: Record<string, string> = {
+  '/api-store/petstore/pet': '1.0.19',
+  '/api-store/blog/v1/posts': '1.0.0',
+  '/api-store/blog/v2/posts': '2.0.0',
 }
+const getVersion = (url: string) => versions[url]
 
 describe('getVersionTabs', () => {
   it('returns one tab per version folder, titled with its version', () => {
     expect(
-      getVersionTabs(tree, versions).map(({ title, url, $folder }) => ({
+      getVersionTabs(tree, getVersion).map(({ title, url, $folder }) => ({
         title,
         url,
         $folder,
@@ -46,7 +47,7 @@ describe('getVersionTabs', () => {
     ])
   })
 
-  it('skips folders without a version', () => {
-    expect(getVersionTabs(tree, {})).toEqual([])
+  it('skips folders whose first page has no version', () => {
+    expect(getVersionTabs(tree, () => undefined)).toEqual([])
   })
 })

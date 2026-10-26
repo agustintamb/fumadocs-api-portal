@@ -96,11 +96,13 @@ desde localhost) y acepta cualquier host público; para producción convendría 
   `meta.json` (`"petstore"`, `"auth"`, `"blog"` en v1 y v2), así el desplegable de Fumadocs
   (`SidebarTabsDropdown`) agrupa solo las versiones de esa API. Las pestañas salen de
   `getLayoutTabs` (`src/utils/get-version-tabs.ts`) con el `info.version` de cada spec como
-  título, leído con `getSchemas()` de fumadocs-openapi. El desplegable nativo del layout no se
+  título, leído con `getSchema()` de la primera página generada de cada carpeta (las páginas
+  MDX no lo tienen, así Docs queda sin selector). El desplegable nativo del layout no se
   puede deshabilitar, así que se desactiva (`tabs={false}`) y el mismo componente se monta en el
   `banner` de la barra lateral (`src/components/VersionSelect/`) con `disabled` cuando la API
-  tiene una sola versión. Al cambiar de versión, Fumadocs lleva a la página equivalente
-  (`v2/comments` → `v1/comments`) o a la primera de la otra versión.
+  tiene una sola versión; su nombre accesible incluye la versión ("Versión 1.0.19"). Al
+  cambiar de versión, Fumadocs lleva a la página equivalente (`v2/comments` → `v1/comments`)
+  o a la primera de la otra versión.
 - **Carpetas sin página**: `/api-store/petstore`, `/api-store/blog`, etc. no tienen página propia;
   se redirigen a la primera página de la carpeta (en `[...slug]/page.tsx`, con `flattenTree`).
 - **Títulos cortos en la barra lateral**: Fumadocs no tiene un campo para eso. Se agregó

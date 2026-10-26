@@ -102,11 +102,7 @@ reemplaza el archivo completo.
    orders: await apiSource(orders, 'api-store/orders/(generated)'),
    ```
 
-   y sumarla a `getApiVersions()` en `src/lib/openapi.ts`, para el selector de versión:
-
-   ```ts
-   '/api-store/orders': orders,
-   ```
+   El selector de versión lee `info.version` de las páginas generadas, sin otro registro.
 
 4. Crear `content/api-store/orders/meta.json`. `root` lleva el id de la API, así el selector de
    versión solo ofrece las versiones de esa API:
@@ -121,4 +117,4 @@ reemplaza el archivo completo.
 
 La ruta `/api-store/orders` redirige automáticamente a la primera página de la API. Para una
 API con versiones, se sigue el ejemplo de `content/api-store/blog/`: una carpeta por versión, todas
-con el id de la API como `root` (en Blog, `"blog"`), y una entrada por versión en `getApiVersions()`.
+con el id de la API como `root` (en Blog, `"blog"`).
