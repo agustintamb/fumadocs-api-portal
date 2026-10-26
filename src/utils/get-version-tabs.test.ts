@@ -54,6 +54,15 @@ describe('getVersionTabs', () => {
     ])
   })
 
+  it('links a version folder to its index page when it has one', () => {
+    const indexed = folder('v3', 'blog', [page('/api-store/blog/v3/posts')])
+    indexed.index = page('/api-store/blog/v3')
+
+    expect(
+      getVersionTabs({ name: 'Root', children: [indexed] }, () => '3.0.0'),
+    ).toMatchObject([{ title: '3.0.0', url: '/api-store/blog/v3' }])
+  })
+
   it('skips folders whose first page has no version', () => {
     expect(getVersionTabs(tree, () => undefined)).toEqual([])
   })

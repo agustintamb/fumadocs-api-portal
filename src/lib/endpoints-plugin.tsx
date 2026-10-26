@@ -6,7 +6,10 @@ import { MethodBadge } from '@/components/MethodBadge'
 // The parts of a generated OpenAPI page's data that the sidebar needs.
 interface OpenAPIPageData {
   toc: { depth: number; title: ReactNode; url: string }[]
-  getOpenAPIPageProps: () => { operations?: { method: string }[] }
+  getOpenAPIPageProps: () => {
+    operations?: { method: string }[]
+    webhooks?: { method: string }[]
+  }
 }
 
 function isOpenAPIPage(data: object): data is OpenAPIPageData {
@@ -14,10 +17,13 @@ function isOpenAPIPage(data: object): data is OpenAPIPageData {
 }
 
 function toEndpointsFolder(page: PageTree.Item, data: OpenAPIPageData): PageTree.Node {
-  // fumadocs-openapi adds one h2 per operation, in the YAML order, to both the toc and `operations`.
   const endpoints = data.toc.filter((item) => item.depth === 2)
   if (endpoints.length === 0) return page
-  const { operations = [] } = data.getOpenAPIPageProps()
+  const { operations = [], webhooks = [] } = data.getOpenAPIPageProps()
+  // The toc lists the operations with an operationId, then the webhooks, in order. Only when the
+  // counts match do both lists line up one to one; otherwise a verb could land on the wrong endpoint.
+  const methods = [...operations, ...webhooks].map((item) => item.method)
+  const pairable = methods.length === endpoints.length
 
   return {
     type: 'folder',
@@ -26,7 +32,7 @@ function toEndpointsFolder(page: PageTree.Item, data: OpenAPIPageData): PageTree
     icon: page.icon,
     index: page,
     children: endpoints.map((item, i) => {
-      const method = operations[i]?.method
+      const method = pairable ? methods[i] : undefined
       return {
         type: 'page',
         $id: `${page.$id}${item.url}`,

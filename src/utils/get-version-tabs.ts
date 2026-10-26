@@ -4,6 +4,7 @@ import type { LayoutTab } from 'fumadocs-ui/layouts/shared'
 // Fumadocs' `getLayoutTabs` only links a root folder to a direct child page, but the endpoints
 // plugin turns API pages into folders indexed by the page.
 function firstPageUrl(folder: PageTree.Folder): string | undefined {
+  if (folder.index) return folder.index.url
   for (const child of folder.children) {
     if (child.type === 'page') return child.url
     if (child.type === 'folder' && !child.root && child.index) return child.index.url

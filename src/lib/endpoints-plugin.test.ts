@@ -36,6 +36,18 @@ const source = loader({
         path: 'store.mdx',
         data: openAPIPage('Store', [['put', 'Update an existing pet']]),
       },
+      {
+        type: 'page',
+        path: 'partial.mdx',
+        // One operation has no toc entry (e.g. no operationId), so verbs can't be paired safely.
+        data: {
+          ...openAPIPage('Partial', [['get', 'List things']]),
+          toc: openAPIPage('', [
+            ['get', 'List things'],
+            ['post', 'Create a thing'],
+          ]).toc,
+        },
+      },
       { type: 'page', path: 'guide.mdx', data: { title: 'Guide', toc: [] } },
     ],
   },
@@ -72,6 +84,18 @@ describe('endpointsPlugin', () => {
     expect(store.children.map((child) => (child as PageTree.Item).url)).toEqual([
       '/api-store/petstore/store#update-an-existing-pet',
     ])
+  })
+
+  it('renders no verb badges when the verbs cannot be paired with the endpoints', () => {
+    const partial = findNode('Partial') as PageTree.Folder
+
+    expect(partial.children.map((child) => (child as PageTree.Item).url)).toEqual([
+      '/api-store/petstore/partial#list-things',
+      '/api-store/petstore/partial#create-a-thing',
+    ])
+    expect(
+      partial.children.map((child) => render(child.name).container.textContent),
+    ).toEqual(['List things ', 'Create a thing '])
   })
 
   it('leaves pages without OpenAPI data as they are', () => {
