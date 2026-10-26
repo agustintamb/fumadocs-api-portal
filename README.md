@@ -88,7 +88,10 @@ reemplaza el archivo completo.
 2. Crear la instancia en `src/lib/openapi.ts`:
 
    ```ts
-   export const orders = createOpenAPI({ proxyUrl, input: ['./apis/orders-api.yaml'] })
+   export const orders = createOpenAPI({
+     proxyUrl: PROXY_URL,
+     input: ['./apis/orders-api.yaml'],
+   })
    ```
 
 3. Registrar la fuente en el `loader()` de `src/lib/source.ts`:
