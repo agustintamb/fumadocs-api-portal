@@ -5,22 +5,44 @@ import {
   DocsPage,
   DocsTitle,
 } from 'fumadocs-ui/layouts/notebook/page'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getMDXComponents } from '@/components/mdx'
+import { OpenApiPage } from '@/components/OpenApiPage'
+import { findFirstPageUrl } from '@/utils/find-first-page-url'
 import type { Metadata } from 'next'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 
 export default async function Page(props: PageProps<'/[...slug]'>) {
   const params = await props.params
   const page = source.getPage(params.slug)
-  if (!page) notFound()
+  if (!page) {
+    // Folders such as `/api-store/blog` have no page of their own: land on their first page.
+    const firstPageUrl = findFirstPageUrl(
+      source.getPageTree(),
+      '/' + params.slug.join('/'),
+    )
+    if (firstPageUrl) redirect(firstPageUrl)
+    notFound()
+  }
 
-  const MDX = page.data.body
+  const { data } = page
+  if ('getOpenAPIPageProps' in data) {
+    return (
+      <DocsPage toc={data.toc} full>
+        <DocsTitle>{data.title}</DocsTitle>
+        <DocsBody>
+          <OpenApiPage {...data.getOpenAPIPageProps()} />
+        </DocsBody>
+      </DocsPage>
+    )
+  }
+
+  const MDX = data.body
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
+    <DocsPage toc={data.toc} full={data.full}>
+      <DocsTitle>{data.title}</DocsTitle>
+      <DocsDescription>{data.description}</DocsDescription>
       <DocsBody>
         <MDX
           components={getMDXComponents({
@@ -42,7 +64,8 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.params
   const page = source.getPage(params.slug)
-  if (!page) notFound()
+  // Without a page, the page itself redirects to the folder's first page or responds 404.
+  if (!page) return {}
 
   return {
     title: page.data.title,
