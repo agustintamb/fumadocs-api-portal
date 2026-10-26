@@ -69,6 +69,8 @@ export const es = {
       beta: 'beta',
       deprecated: 'obsoleta',
     },
+    footerNote:
+      'Esta página es un componente React propio dentro de Fumadocs, construido con Tailwind CSS y los tokens de tema de fumadocs-ui.',
   },
   notFound: {
     title: 'Página no encontrada',
