@@ -46,16 +46,16 @@ $env:SCREENSHOTS = '1'; npx playwright test e2e/screenshots.spec.ts
 
 ## Rutas
 
-| Ruta                                       | Contenido                                                        |
-| ------------------------------------------ | ---------------------------------------------------------------- |
-| `/`                                        | Redirige a `/home`.                                              |
-| `/home`                                    | Landing con hero y carrusel de clientes.                         |
-| `/dashboard`                               | Estadísticas y actividad reciente filtrable.                     |
-| `/api-store`                               | Catálogo de APIs con buscador y filtros.                         |
-| `/introduction`                            | Introducción de la documentación.                                |
-| `/api-store/petstore`                      | Referencia y playground de Petstore (lleva a la primera página). |
-| `/api-store/blog/v1`, `/api-store/blog/v2` | Blog con selector de versión; `/api-store/blog` lleva a v1.      |
-| `/api-store/auth`                          | Referencia y playground de Auth.                                 |
+| Ruta                                       | Contenido                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| `/`                                        | Redirige a `/home`.                                                         |
+| `/home`                                    | Landing con hero y carrusel de clientes.                                    |
+| `/dashboard`                               | Estadísticas y actividad reciente filtrable.                                |
+| `/api-store`                               | Catálogo de APIs con buscador y filtros.                                    |
+| `/docs/introduction`                       | Introducción de la documentación; `/docs` y `/introduction` redirigen aquí. |
+| `/api-store/petstore`                      | Referencia y playground de Petstore (lleva a la primera página).            |
+| `/api-store/blog/v1`, `/api-store/blog/v2` | Blog con selector de versión; `/api-store/blog` lleva a v1.                 |
+| `/api-store/auth`                          | Referencia y playground de Auth.                                            |
 
 ## Dónde se configura cada cosa
 
@@ -77,7 +77,7 @@ Otras piezas:
   y redirige las carpetas sin página propia a su primera página.
 - `src/app/api/proxy/route.ts`: proxy que usa el playground para evitar CORS.
 - `src/app/(home)/{home,dashboard,api-store}/`: vistas, hooks y `_components/` de cada página, junto a su `page.tsx`.
-- `content/(docs)/`: páginas MDX de la documentación.
+- `content/docs/`: páginas MDX de la documentación.
 
 Los archivos de `apis/` son copias byte a byte de los del sandbox. No se editan; si cambian, se
 reemplaza el archivo completo.

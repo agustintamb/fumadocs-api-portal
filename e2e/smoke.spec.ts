@@ -18,12 +18,27 @@ for (const [path, text] of [
   ['/home', 'Integraciones más rápidas con nuestras APIs'],
   ['/dashboard', 'Actividad reciente'],
   ['/api-store', 'APIs disponibles'],
-  ['/introduction', 'Bienvenido al Portal de APIs · Fumadocs'],
+  ['/docs/introduction', 'Bienvenido al Portal de APIs · Fumadocs'],
 ])
   test(`${path} renders spanish copy`, async ({ page }) => {
     await page.goto(path)
     await expect(page.getByText(text).first()).toBeVisible()
   })
+
+for (const path of ['/introduction', '/docs'])
+  test(`${path} redirects to the docs introduction`, async ({ page }) => {
+    await page.goto(path)
+    await expect(page).toHaveURL(/\/docs\/introduction$/)
+  })
+
+test('marks Docs as current on docs pages', async ({ page }) => {
+  await page.goto('/docs/introduction')
+  await expect(
+    page
+      .getByRole('link', { name: 'Documentación', exact: true })
+      .filter({ visible: true }),
+  ).toHaveAttribute('aria-current', 'page')
+})
 
 for (const [root, landing] of [
   ['/api-store/petstore', /\/api-store\/petstore\/pet$/],

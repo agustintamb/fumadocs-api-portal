@@ -17,7 +17,7 @@ export function Hero() {
           {es.home.primaryAction}
         </Link>
         <Link
-          href="/introduction"
+          href="/docs/introduction"
           className="border-fd-border hover:bg-fd-accent hover:text-fd-accent-foreground rounded-lg border px-5 py-2.5 text-sm font-medium transition-colors"
         >
           {es.home.secondaryAction}

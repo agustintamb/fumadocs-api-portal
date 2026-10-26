@@ -12,7 +12,7 @@ const PAGES = [
   { name: 'home', path: '/home', fullPage: true },
   { name: 'dashboard', path: '/dashboard', fullPage: true },
   { name: 'api-store', path: '/api-store', fullPage: true },
-  { name: 'introduction', path: '/introduction', fullPage: false },
+  { name: 'introduction', path: '/docs/introduction', fullPage: false },
   { name: 'petstore', path: '/api-store/petstore/pet', fullPage: false },
   { name: 'blog-v2', path: '/api-store/blog/v2/posts', fullPage: false },
 ]

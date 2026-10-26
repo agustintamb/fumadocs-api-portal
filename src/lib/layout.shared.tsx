@@ -7,7 +7,7 @@ import type { NavLinkMatch } from '@/utils/is-nav-link-active'
 const NAV_LINKS: { text: string; url: string; active: NavLinkMatch }[] = [
   { text: es.nav.home, url: '/home', active: 'url' },
   { text: es.nav.dashboard, url: '/dashboard', active: 'url' },
-  { text: es.nav.docs, url: '/introduction', active: 'nested-url' },
+  { text: es.nav.docs, url: '/docs', active: 'nested-url' },
   { text: es.nav.apiStore, url: '/api-store', active: 'nested-url' },
 ]
 

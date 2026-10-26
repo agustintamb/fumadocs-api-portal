@@ -5,11 +5,11 @@ import {
   DocsPage,
   DocsTitle,
 } from 'fumadocs-ui/layouts/notebook/page'
+import { flattenTree } from 'fumadocs-core/page-tree'
 import { notFound, redirect } from 'next/navigation'
 import { getMDXComponents } from '@/components/mdx'
 import { OpenApiPage } from '@/components/OpenApiPage'
 import { es } from '@/i18n/es'
-import { findFirstPageUrl } from '@/utils/find-first-page-url'
 import type { Metadata } from 'next'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 
@@ -17,12 +17,12 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
   const params = await props.params
   const page = source.getPage(params.slug)
   if (!page) {
-    // Folders such as `/api-store/blog` have no page of their own: land on their first page.
-    const firstPageUrl = findFirstPageUrl(
-      source.getPageTree(),
-      '/' + params.slug.join('/'),
+    // Folders such as `/docs` or `/api-store/blog` have no page of their own: land on their first page.
+    const prefix = `/${params.slug.join('/')}/`
+    const first = flattenTree(source.getPageTree().children).find((item) =>
+      item.url.startsWith(prefix),
     )
-    if (firstPageUrl) redirect(firstPageUrl)
+    if (first) redirect(first.url)
     notFound()
   }
 

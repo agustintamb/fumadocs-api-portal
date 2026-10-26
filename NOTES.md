@@ -77,7 +77,7 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 - **Pestañas de APIs**: `getLayoutTabs` no sirve porque Blog no tiene página propia (solo las
   carpetas v1 y v2). Se escribió `getRootFolderTabs` (`src/utils/get-root-folder-tabs.ts`).
 - **Carpetas sin página**: `/api-store/petstore`, `/api-store/blog`, etc. no tienen página propia;
-  se redirigen a la primera página de la carpeta (`findFirstPageUrl`).
+  se redirigen a la primera página de la carpeta (en `[...slug]/page.tsx`, con `flattenTree`).
 - **Títulos cortos en la barra lateral**: Fumadocs no tiene un campo para eso. Se agregó
   `sidebarTitle` al frontmatter (con `zod`) y un plugin del loader que lo aplica.
 - **Specs byte a byte**: con `core.autocrlf=true` en Windows, Git convertía los finales de línea.
@@ -106,7 +106,7 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 ## Alternativas previstas en el plan (Tasks 3 y 4)
 
 - **Task 3**: el plan preveía mover `introduction.mdx` a la raíz si una carpeta `(grupo)` no
-  podía ser raíz. No hizo falta: `content/(docs)` con `root: true` funciona.
+  podía ser raíz. Después se movió a `content/docs` (URL `/docs/introduction`), con `root: true`.
 - **Task 4**: el plan preveía un ajuste mínimo si la colección de contenido rechazaba carpetas
   que solo tienen `meta.json`. Tampoco hizo falta.
 - Desvíos que sí se tomaron: `getRootFolderTabs` en lugar de `getLayoutTabs` (ver arriba) y

@@ -6,7 +6,10 @@ const withMDX = createMDX()
 const config = {
   reactStrictMode: true,
   async redirects() {
-    return [{ source: '/', destination: '/home', permanent: false }]
+    return [
+      { source: '/', destination: '/home', permanent: false },
+      { source: '/introduction', destination: '/docs/introduction', permanent: false },
+    ]
   },
 }
 
