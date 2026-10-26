@@ -22,18 +22,17 @@ pestañas del layout, "Layout Tab" en el original). Están todas en `src/lib/tra
 
 ## Qué quedó en inglés
 
-| Texto                                                                                            | Dónde aparece                                                 | Por qué                                                                                                            |
-| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `Authorization`                                                                                  | Etiqueta de la fila de autenticación del playground           | Es el nombre del header HTTP; la librería lo escribe fijo en el código (`auth.js`), no pasa por las traducciones.  |
-| `header`                                                                                         | Chip de ubicación del parámetro de autenticación              | Fijo en la librería; además es el valor técnico (`in: header`).                                                    |
-| `flow`, `client_id`, `authorization_url`, `redirect_uri`                                         | Panel de OAuth2                                               | Nombres de campos de OAuth2 escritos fijos en la librería.                                                         |
-| `body`, `response`                                                                               | Raíz del esquema en la referencia                             | Etiquetas fijas en la librería (`operation/index.js`).                                                             |
-| `string`, `integer`, `array<…>`, `unknown`                                                       | Tipos de los campos                                           | Notación de tipos de JSON Schema; se dejan como literales técnicos.                                                |
-| `TypeScript`                                                                                     | Botón para copiar el tipo                                     | Fijo en la librería (`copy-typescript.js`).                                                                        |
-| `cURL`, `JSON`, `Bearer <token>`, `Basic <token>`, `Ctrl`                                        | Ejemplos de código, selector de formato, placeholders y atajo | Nombres propios, formatos o valores literales de headers.                                                          |
-| `Callbacks`, `Cookies`, `OK`                                                                     | Secciones y respuestas de la referencia                       | Se dejaron en inglés en `translations.ts` porque son términos técnicos habituales.                                 |
-| Mensaje de error del proxy (`[Proxy] The host "localhost" doesn't resolve to a public address…`) | Respuesta al enviar una solicitud a un host privado           | Lo genera `createProxy` de fumadocs-openapi; no tiene hook de traducción.                                          |
-| Falta el `aria-label` de la navegación superior                                                  | Lector de pantalla                                            | Fumadocs no le pone etiqueta ni expone una opción para hacerlo; las páginas de docs no tienen un landmark `<nav>`. |
+| Texto                                                                                            | Dónde aparece                                                 | Por qué                                                                                                           |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `Authorization`                                                                                  | Etiqueta de la fila de autenticación del playground           | Es el nombre del header HTTP; la librería lo escribe fijo en el código (`auth.js`), no pasa por las traducciones. |
+| `header`                                                                                         | Chip de ubicación del parámetro de autenticación              | Fijo en la librería; además es el valor técnico (`in: header`).                                                   |
+| `flow`, `client_id`, `authorization_url`, `redirect_uri`                                         | Panel de OAuth2                                               | Nombres de campos de OAuth2 escritos fijos en la librería.                                                        |
+| `body`, `response`                                                                               | Raíz del esquema en la referencia                             | Etiquetas fijas en la librería (`operation/index.js`).                                                            |
+| `string`, `integer`, `array<…>`, `unknown`                                                       | Tipos de los campos                                           | Notación de tipos de JSON Schema; se dejan como literales técnicos.                                               |
+| `TypeScript`                                                                                     | Botón para copiar el tipo                                     | Fijo en la librería (`copy-typescript.js`).                                                                       |
+| `cURL`, `JSON`, `Bearer <token>`, `Basic <token>`, `Ctrl`                                        | Ejemplos de código, selector de formato, placeholders y atajo | Nombres propios, formatos o valores literales de headers.                                                         |
+| `Callbacks`, `Cookies`, `OK`                                                                     | Secciones y respuestas de la referencia                       | Se dejaron en inglés en `translations.ts` porque son términos técnicos habituales.                                |
+| Mensaje de error del proxy (`[Proxy] The host "localhost" doesn't resolve to a public address…`) | Respuesta al enviar una solicitud a un host privado           | Lo genera `createProxy` de fumadocs-openapi; no tiene hook de traducción.                                         |
 
 Capturas:
 
@@ -71,9 +70,24 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 - **Traducciones completas**: entre fumadocs-ui y fumadocs-openapi hay más de 200 claves y algunas solo se ven
   en estados puntuales del playground. El `satisfies` contra el tipo de la librería evita que
   falte alguna.
-- **Barra superior con estado activo**: el layout de docs por defecto no tiene barra superior en
-  escritorio, así que se usa el layout Notebook con `nav.mode: 'top'`. Para marcar la sección
-  actual con `aria-current` se escribió un `NavLink` propio.
+- **Un solo header en todo el sitio**: `SiteHeader` (`src/components/SiteHeader/`) es un
+  componente propio (logo, links con `aria-current` vía `NavLink`, búsqueda y tema) que se conecta
+  con el mecanismo oficial `slots.header` de `HomeLayout` y del `DocsLayout` Notebook. Docs y APIs
+  siguen en Notebook con `nav.mode: 'top'` porque es el único layout de docs cuyo header puede
+  ocupar todo el ancho arriba de la barra lateral. Detalles:
+  - En Notebook el header ocupa toda la primera fila de la grilla y lleva
+    `contain: inline-size`; sin eso su contenido ensancha las columnas externas y en mobile la
+    página queda aplastada en una columna angosta.
+  - El header declara `--fd-header-height` (variante `layout:` de Fumadocs) para que la barra
+    lateral y el TOC sticky queden debajo.
+  - Docs usa el mismo ancho que `HomeLayout` (`--fd-layout-width: 1400px`) para que el header se
+    vea igual en todas las páginas.
+  - En mobile el botón de menú de Inicio, Dashboard y API Store abre un popover con los links; en
+    Docs y APIs abre el cajón de la barra lateral de Fumadocs, que muestra los links del navbar
+    (items `on: 'menu'`) y la sección actual. El toggle de tema está siempre en el header, así
+    que se desactiva el de Fumadocs (`themeSwitch.enabled: false`) para que no se repita en el
+    cajón. Entre 768 px y 1024 px Docs no muestra el botón: la barra lateral está visible y
+    tiene los links.
 - **Pestañas de APIs**: `getLayoutTabs` no sirve porque Blog no tiene página propia (solo las
   carpetas v1 y v2). Se escribió `getRootFolderTabs` (`src/utils/get-root-folder-tabs.ts`).
 - **Carpetas sin página**: `/api-store/petstore`, `/api-store/blog`, etc. no tienen página propia;
@@ -81,7 +95,7 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 - **Títulos cortos en la barra lateral**: Fumadocs no tiene un campo para eso. Se agregó
   `sidebarTitle` al frontmatter (con `zod`) y un plugin del loader que lo aplica.
 - **Specs byte a byte**: con `core.autocrlf=true` en Windows, Git convertía los finales de línea.
-  `.gitattributes` marca `apis/**` y los cuatro SVG del sandbox como `-text` para que queden
+  `.gitattributes` marca `apis/**` y los SVG del banner del sandbox como `-text` para que queden
   idénticos al original; el resto del repo usa LF.
 - **Detectar páginas de OpenAPI**: las páginas generadas se distinguen de las MDX con
   `'getOpenAPIPageProps' in data`.
@@ -90,8 +104,8 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 
 - Subida de archivos `binary` en el playground (ver arriba).
 - Algunos textos fijos de la librería siguen en inglés (ver la tabla).
-- En el menú móvil los items de navegación marcan el activo con `data-active`, sin
-  `aria-current`, porque se usan los items nativos de Fumadocs.
+- En el cajón móvil de Docs y APIs los links del navbar marcan el activo con `data-active`, sin
+  `aria-current`, porque son los items nativos de Fumadocs.
 - El buscador del API Store busca en nombre, descripción y tags, como pide el spec. El ejemplo
   del plan de buscar "CONTENIDO" necesitaría buscar también por categoría; no se agregó ni se
   prueba en el smoke test.
@@ -122,5 +136,7 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 - Si queda una carpeta `.next/` vieja, `tsc` puede fallar por tipos generados de rutas que ya no
   existen. Se resuelve borrando `.next/`.
 - Vitest a veces falla en frío por timeout de un worker; al volver a correrlo pasa.
-- El logo es el del sandbox (el de Zudoku), copiado tal cual según el spec.
+- El logo es simulado (`src/components/SiteLogo/`): un círculo con degradé en el violeta del tema
+  y el texto "Fumadocs". `es.site.title` ("Portal de APIs · Fumadocs") se mantiene para el
+  `<title>` de las páginas; el header muestra solo "Fumadocs".
 - Las capturas en modo claro y oscuro están en `docs/screenshots/`.

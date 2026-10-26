@@ -31,6 +31,53 @@ for (const path of ['/introduction', '/docs'])
     await expect(page).toHaveURL(/\/docs\/introduction$/)
   })
 
+test.describe('desktop header', () => {
+  test.use({ viewport: { width: 1280, height: 800 } })
+
+  test('renders the same header on every section', async ({ page }) => {
+    const boxes = []
+    for (const path of ['/home', '/docs/introduction', '/api-store/petstore/pet']) {
+      await page.goto(path)
+      const header = page.locator('header').first()
+      await expect(
+        header.getByRole('link', { name: 'Fumadocs', exact: true }),
+      ).toHaveAttribute('href', '/home')
+      await expect(header.getByRole('listitem').getByRole('link')).toHaveText([
+        'Inicio',
+        'Dashboard',
+        'Documentación',
+        'API Store',
+      ])
+      await expect(header.getByRole('button', { name: /^Buscar/ })).toBeVisible()
+      await expect(header.getByRole('button', { name: 'Cambiar tema' })).toBeVisible()
+      await expect(page.locator('img[src*="logo-"]')).toHaveCount(0)
+      boxes.push(await header.boundingBox())
+    }
+    expect(boxes[1]).toEqual(boxes[0])
+    expect(boxes[2]).toEqual(boxes[0])
+  })
+})
+
+test.describe('mobile header', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('opens the sidebar from the header on API pages', async ({ page }) => {
+    await page.goto('/api-store/petstore/pet')
+    // The header must not squeeze the page content on small screens.
+    expect((await page.locator('article').boundingBox())?.width).toBeGreaterThan(300)
+    await page
+      .locator('header')
+      .first()
+      .getByRole('button', { name: 'Abrir barra lateral' })
+      .click()
+    const panel = page.getByRole('complementary').filter({ visible: true })
+    await expect(
+      panel.getByRole('link', { name: 'API Store', exact: true }),
+    ).toBeVisible()
+    await expect(panel.getByRole('link', { name: 'Pet', exact: true })).toBeVisible()
+  })
+})
+
 test('marks Docs as current on docs pages', async ({ page }) => {
   await page.goto('/docs/introduction')
   await expect(

@@ -3,9 +3,12 @@ export const es = {
     title: 'Portal de APIs · Fumadocs',
     description:
       'Documentación interactiva de las APIs de GST: referencia, playground y ejemplos de código.',
-    logoAlt: 'Portal de APIs',
+    brand: 'Fumadocs',
+    logoAlt: 'Fumadocs',
   },
   nav: {
+    label: 'Navegación principal',
+    menu: 'Abrir menú',
     home: 'Inicio',
     dashboard: 'Dashboard',
     docs: 'Documentación',

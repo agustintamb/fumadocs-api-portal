@@ -66,7 +66,9 @@ $env:SCREENSHOTS = '1'; npx playwright test e2e/screenshots.spec.ts
 | Textos propios        | `src/i18n/es.ts`                                        |
 | Datos de ejemplo      | `src/data/`                                             |
 | Tema                  | `src/app/global.css`                                    |
-| Navegación            | `src/lib/layout.shared.tsx`                             |
+| Navegación            | `src/lib/layout.shared.tsx` (`NAV_LINKS`)               |
+| Header                | `src/components/SiteHeader/`                            |
+| Logo                  | `src/components/SiteLogo/index.tsx`                     |
 | APIs                  | `src/lib/openapi.ts` y `content/api-store/**/meta.json` |
 
 Otras piezas:
