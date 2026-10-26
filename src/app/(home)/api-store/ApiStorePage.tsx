@@ -3,7 +3,7 @@
 import { FilterChips } from '@/components/FilterChips'
 import type { ApiCardData } from '@/data/apis'
 import { es } from '@/i18n/es'
-import { ApiCard } from './ApiCard'
+import { ApiCard } from './_components/ApiCard'
 import { useApiStorePage } from './useApiStorePage'
 
 export interface ApiStorePageProps {

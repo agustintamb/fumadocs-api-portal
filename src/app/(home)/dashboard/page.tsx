@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DashboardPage } from '@/components/pages/DashboardPage'
+import { DashboardPage } from './DashboardPage'
 import { es } from '@/i18n/es'
 
 export const metadata: Metadata = { title: es.nav.dashboard }

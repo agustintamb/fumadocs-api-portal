@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { FilterChips } from '@/components/FilterChips'
 import { STATS } from '@/data/dashboard'
 import { es } from '@/i18n/es'
-import { ActivityList } from './ActivityList'
-import { StatCard } from './StatCard'
+import { ActivityList } from './_components/ActivityList'
+import { StatCard } from './_components/StatCard'
 import { useDashboardPage } from './useDashboardPage'
 
 export function DashboardPage() {

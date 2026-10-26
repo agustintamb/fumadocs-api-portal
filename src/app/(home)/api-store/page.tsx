@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { ApiStorePage } from '@/components/pages/ApiStorePage'
+import { ApiStorePage } from './ApiStorePage'
 import { getApiCatalog } from '@/lib/api-catalog'
 import { es } from '@/i18n/es'
 

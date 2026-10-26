@@ -76,7 +76,7 @@ Otras piezas:
 - `src/app/(docs)/[...slug]/page.tsx`: renderiza las páginas de documentación y de referencia,
   y redirige las carpetas sin página propia a su primera página.
 - `src/app/api/proxy/route.ts`: proxy que usa el playground para evitar CORS.
-- `src/components/pages/`: vistas de Inicio, Dashboard y API Store.
+- `src/app/(home)/{home,dashboard,api-store}/`: vistas, hooks y `_components/` de cada página, junto a su `page.tsx`.
 - `content/(docs)/`: páginas MDX de la documentación.
 
 Los archivos de `apis/` son copias byte a byte de los del sandbox. No se editan; si cambian, se
