@@ -3,16 +3,16 @@ import { GeistSans } from 'geist/font/sans'
 import { i18nProvider } from 'fumadocs-ui/i18n'
 import { RootProvider } from 'fumadocs-ui/provider/next'
 import type { Metadata } from 'next'
+import { es } from '@/i18n/es'
 import { translations } from '@/lib/translations'
 import './global.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Portal de APIs · Fumadocs',
-    template: '%s · Portal de APIs · Fumadocs',
+    default: es.site.title,
+    template: `%s · ${es.site.title}`,
   },
-  description:
-    'Documentación interactiva de las APIs de GST: referencia, playground y ejemplos de código.',
+  description: es.site.description,
 }
 
 export default function Layout({ children }: LayoutProps<'/'>) {

@@ -8,6 +8,7 @@ import {
 import { notFound, redirect } from 'next/navigation'
 import { getMDXComponents } from '@/components/mdx'
 import { OpenApiPage } from '@/components/OpenApiPage'
+import { es } from '@/i18n/es'
 import { findFirstPageUrl } from '@/utils/find-first-page-url'
 import type { Metadata } from 'next'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
@@ -67,8 +68,10 @@ export async function generateMetadata(
   // Without a page, the page itself redirects to the folder's first page or responds 404.
   if (!page) return {}
 
+  // The intro title already carries the site name, so skip the root title template.
+  const { title } = page.data
   return {
-    title: page.data.title,
+    title: title?.endsWith(es.site.title) ? { absolute: title } : title,
     description: page.data.description,
   }
 }
