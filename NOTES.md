@@ -86,8 +86,11 @@ desde localhost) y acepta cualquier host público; para producción convendría 
     Docs y APIs abre el cajón de la barra lateral de Fumadocs, que muestra los links del navbar
     (items `on: 'menu'`) y la sección actual. El toggle de tema está siempre en el header, así
     que se desactiva el de Fumadocs (`themeSwitch.enabled: false`) para que no se repita en el
-    cajón. Entre 768 px y 1024 px Docs no muestra el botón: la barra lateral está visible y
-    tiene los links.
+    cajón. Desde 768 px el header muestra los links y no hay botón de menú, igual en Inicio y
+    Docs (entre 768 px y 1024 px la barra lateral de Docs también lista los links).
+  - El botón para contraer la barra lateral de escritorio (nativo del header de Fumadocs) no
+    está en el header propio; `Ctrl+B` (⌘+B) sigue contrayéndola. No se agregó UI nueva.
+  - La página 404 (`not-found.tsx`) usa el mismo header (`HomeHeader`).
 - **Pestañas de APIs**: `getLayoutTabs` no sirve porque Blog no tiene página propia (solo las
   carpetas v1 y v2). Se escribió `getRootFolderTabs` (`src/utils/get-root-folder-tabs.ts`).
 - **Carpetas sin página**: `/api-store/petstore`, `/api-store/blog`, etc. no tienen página propia;

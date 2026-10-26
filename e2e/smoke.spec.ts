@@ -58,6 +58,40 @@ test.describe('desktop header', () => {
   })
 })
 
+test.describe('tablet header', () => {
+  test.use({ viewport: { width: 900, height: 800 } })
+
+  test('matches between Home and Docs', async ({ page }) => {
+    const buttons = ['Abrir búsqueda', 'Cambiar tema']
+    const boxes = []
+    for (const path of ['/home', '/docs/introduction']) {
+      await page.goto(path)
+      const header = page.locator('header').first()
+      await expect(header.getByRole('listitem').getByRole('link')).toHaveCount(4)
+      await expect(header.getByRole('button', { name: 'Abrir menú' })).toBeHidden()
+      await expect(
+        header.getByRole('button', { name: 'Abrir barra lateral' }),
+      ).toBeHidden()
+      boxes.push(
+        await Promise.all(
+          buttons.map((name) =>
+            header.getByRole('button', { name: new RegExp(`^${name}`) }).boundingBox(),
+          ),
+        ),
+      )
+    }
+    expect(boxes[1]).toEqual(boxes[0])
+  })
+})
+
+test('404 page has the site header', async ({ page }) => {
+  const res = await page.goto('/no-existe')
+  expect(res?.status()).toBe(404)
+  await expect(
+    page.locator('header').first().getByRole('link', { name: 'Fumadocs', exact: true }),
+  ).toHaveAttribute('href', '/home')
+})
+
 test.describe('mobile header', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 

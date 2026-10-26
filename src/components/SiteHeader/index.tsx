@@ -27,7 +27,7 @@ export function SiteHeader({ mobileTrigger, className = '' }: SiteHeaderProps) {
         <Link href="/home">
           <SiteLogo />
         </Link>
-        <nav aria-label={es.nav.label} className="max-lg:hidden">
+        <nav aria-label={es.nav.label} className="max-md:hidden">
           <ul className="flex items-center gap-6">
             {NAV_LINKS.map(({ text, url, active }) => (
               <li key={url}>

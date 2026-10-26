@@ -25,7 +25,7 @@ export function HomeHeader() {
             className={buttonVariants({
               variant: 'ghost',
               size: 'icon-sm',
-              className: 'lg:hidden',
+              className: 'md:hidden',
             })}
           >
             <Menu />
