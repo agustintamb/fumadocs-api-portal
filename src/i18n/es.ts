@@ -41,6 +41,14 @@ export const es = {
     },
     empty: 'No hay actividad para este filtro.',
     backToStore: 'Volver al API Store',
+    footerNote: {
+      before:
+        'Esta página es un componente React propio dentro de Fumadocs: estado local con ',
+      state: 'useState',
+      middle: ', navegación con ',
+      router: 'next/navigation',
+      after: ' y estilos con Tailwind CSS.',
+    },
   },
   apiStore: {
     title: 'APIs disponibles',
