@@ -182,6 +182,20 @@ test('switches Blog versions to the matching page', async ({ page }) => {
   await expect(page).toHaveURL(/\/api-store\/blog\/v1\/comments$/)
 })
 
+test('lists endpoints with their verb in the sidebar', async ({ page }) => {
+  await page.goto('/api-store/petstore/pet')
+  const endpoint = page
+    .locator('#nd-sidebar')
+    .getByRole('link', { name: 'Update an existing pet PUT', exact: true })
+  await expect(endpoint).toBeVisible()
+  await endpoint.click()
+  await expect(page).toHaveURL(/\/api-store\/petstore\/pet#update-an-existing-pet$/)
+  await expect(page.locator('h2#update-an-existing-pet')).toBeInViewport()
+
+  await page.goto('/api-store/petstore/store#place-an-order-for-a-pet')
+  await expect(page.locator('h2#place-an-order-for-a-pet')).toBeInViewport()
+})
+
 test('petstore playground and auth are in spanish', async ({ page }) => {
   await page.goto('/api-store/petstore/pet')
   await expect(page.getByText('Parámetros de consulta').first()).toBeVisible()

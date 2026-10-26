@@ -105,6 +105,17 @@ desde localhost) y acepta cualquier host público; para producción convendría 
   o a la primera de la otra versión.
 - **Carpetas sin página**: `/api-store/petstore`, `/api-store/blog`, etc. no tienen página propia;
   se redirigen a la primera página de la carpeta (en `[...slug]/page.tsx`, con `flattenTree`).
+- **Endpoints en la barra lateral** (como Zudoku): se mantiene una página por recurso (tag) y un
+  plugin del loader (`src/lib/endpoints-plugin.tsx`, `transformPageTree`) convierte cada página
+  generada en una carpeta cuyo índice es la página y cuyos hijos son links a las anclas de sus
+  endpoints, con el `summary` y el verbo. Las anclas salen del `toc` de la página (mismo slugger
+  que los `h2`) y los verbos de `getOpenAPIPageProps().operations`, en el orden del YAML. El
+  plugin actúa en `folder()` porque `file()` solo puede devolver una página. `MethodLabel` de
+  fumadocs-openapi no está en `exports`, así que `MethodBadge` (`src/components/MethodBadge/`)
+  copia sus colores. Fumadocs despliega sola la carpeta de la página abierta. Como los links a
+  anclas también son páginas del árbol, el pie "anterior / siguiente" de las páginas de API se
+  arma con `findPageNeighbours` (`src/utils/`), que los saltea; si no, desde "Pet" el siguiente
+  sería su propio primer endpoint.
 - **Títulos cortos en la barra lateral**: Fumadocs no tiene un campo para eso. Se agregó
   `sidebarTitle` al frontmatter (con `zod`) y un plugin del loader que lo aplica.
 - **Specs byte a byte**: con `core.autocrlf=true` en Windows, Git convertía los finales de línea.
@@ -116,6 +127,8 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 ## Qué falta respecto de Zudoku
 
 - Subida de archivos `binary` en el playground (ver arriba).
+- En la barra lateral no se resalta el endpoint visible al scrollear; solo queda resaltado el
+  recurso (la página abierta).
 - Algunos textos fijos de la librería siguen en inglés (ver la tabla).
 - En el cajón móvil de Docs y APIs los links del navbar marcan el activo con `data-active`, sin
   `aria-current`, porque son los items nativos de Fumadocs.

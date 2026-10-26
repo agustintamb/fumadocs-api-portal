@@ -10,6 +10,7 @@ import { notFound, redirect } from 'next/navigation'
 import { getMDXComponents } from '@/components/mdx'
 import { OpenApiPage } from '@/components/OpenApiPage'
 import { es } from '@/i18n/es'
+import { findPageNeighbours } from '@/utils/find-page-neighbours'
 import type { Metadata } from 'next'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 
@@ -29,7 +30,12 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
   const { data } = page
   if ('getOpenAPIPageProps' in data) {
     return (
-      <DocsPage toc={data.toc} full>
+      <DocsPage
+        toc={data.toc}
+        full
+        // Fumadocs' own footer would link to the endpoint anchors of the sidebar.
+        footer={{ items: findPageNeighbours(source.getPageTree(), page.url) }}
+      >
         <DocsTitle>{data.title}</DocsTitle>
         <DocsBody>
           <OpenApiPage {...data.getOpenAPIPageProps()} />

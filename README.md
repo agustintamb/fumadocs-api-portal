@@ -75,6 +75,8 @@ Otras piezas:
 
 - `src/lib/source.ts`: une el contenido MDX (`content/`) con las páginas generadas desde los
   YAML.
+- `src/lib/endpoints-plugin.tsx`: plugin del `loader()` que lista en la barra lateral los
+  endpoints de cada recurso, con su verbo, como links a su ancla.
 - `src/app/(docs)/[...slug]/page.tsx`: renderiza las páginas de documentación y de referencia,
   y redirige las carpetas sin página propia a su primera página.
 - `src/app/api/proxy/route.ts`: proxy que usa el playground para evitar CORS.

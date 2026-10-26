@@ -5,6 +5,7 @@ import { metaSchema, pageSchema } from 'fumadocs-core/source/schema'
 import { z } from 'zod'
 import type { OpenAPIServer } from 'fumadocs-openapi/server'
 import { auth, blogV1, blogV2, petstore } from '@/lib/openapi'
+import { endpointsPlugin } from '@/lib/endpoints-plugin'
 
 const docs = defineDocs({
   dir: 'content',
@@ -35,6 +36,7 @@ export const source = loader(
     baseUrl: '/',
     plugins: [
       petstore.loaderPlugin(),
+      endpointsPlugin(),
       lucideIconsPlugin(),
       {
         name: 'sidebar-title',

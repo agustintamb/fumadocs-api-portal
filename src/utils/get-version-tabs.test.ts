@@ -14,9 +14,16 @@ function folder(
   return { type: 'folder', name, root, children }
 }
 
+// The endpoints plugin turns each API page into a folder indexed by that page.
+function endpoints(index: PageTree.Item): PageTree.Folder {
+  return { type: 'folder', name: index.name, index, children: [page(`${index.url}#op`)] }
+}
+
 const docs = folder('Documentación', true, [page('/docs/introduction')])
-const petstore = folder('Petstore API', 'petstore', [page('/api-store/petstore/pet')])
-const v1 = folder('v1', 'blog', [page('/api-store/blog/v1/posts')])
+const petstore = folder('Petstore API', 'petstore', [
+  endpoints(page('/api-store/petstore/pet')),
+])
+const v1 = folder('v1', 'blog', [endpoints(page('/api-store/blog/v1/posts'))])
 const v2 = folder('v2', 'blog', [page('/api-store/blog/v2/posts')])
 const blog = folder('Blog API', true, [v1, v2])
 
