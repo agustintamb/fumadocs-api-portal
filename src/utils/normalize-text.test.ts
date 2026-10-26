@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeText } from './normalize-text'
+import { normalizeText } from '@/utils/normalize-text'
 
 describe('normalizeText', () => {
   it('lowercases, trims and strips diacritics', () => {
