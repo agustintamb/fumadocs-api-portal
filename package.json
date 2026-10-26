@@ -10,11 +10,10 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "types:check": "next typegen && tsc --noEmit"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "fumadocs-core": "16.17.8",

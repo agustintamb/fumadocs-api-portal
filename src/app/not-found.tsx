@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="text-fd-muted-foreground">{es.notFound.description}</p>
       <Link
         href="/home"
-        className="bg-fd-primary text-fd-primary-foreground rounded-md px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+        className="bg-fd-primary text-fd-primary-foreground rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
       >
         {es.notFound.action}
       </Link>

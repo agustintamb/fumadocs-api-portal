@@ -25,15 +25,17 @@ for (const [path, text] of [
     await expect(page.getByText(text).first()).toBeVisible()
   })
 
-for (const root of [
-  '/api-store/petstore',
-  '/api-store/blog',
-  '/api-store/blog/v2',
-  '/api-store/auth',
-])
+for (const [root, landing] of [
+  ['/api-store/petstore', /\/api-store\/petstore\/pet$/],
+  ['/api-store/blog', /\/api-store\/blog\/v1\/posts$/],
+  ['/api-store/blog/v1', /\/api-store\/blog\/v1\/posts$/],
+  ['/api-store/blog/v2', /\/api-store\/blog\/v2\/posts$/],
+  ['/api-store/auth', /\/api-store\/auth\/auth$/],
+] as const)
   test(`${root} lands on a reference page`, async ({ page }) => {
     const res = await page.goto(root)
     expect(res?.status()).toBeLessThan(400)
+    await expect(page).toHaveURL(landing)
     // The playground opens in a dialog, so the send button only exists after opening it.
     await page.getByRole('button', { name: 'Probar en el playground' }).first().click()
     await expect(page.getByRole('button', { name: 'Enviar' }).first()).toBeVisible()
@@ -86,14 +88,21 @@ test('petstore api key selector is in spanish', async ({ page }) => {
     ).toHaveCount(0)
 })
 
-test('carousel does not animate with reduced motion', async ({ browser }) => {
+test('carousel animates by default and stops with reduced motion', async ({
+  browser,
+}) => {
+  const animationName = (page: Page) =>
+    page.getByTestId('clients-track').evaluate((el) => getComputedStyle(el).animationName)
+
+  const defaultContext = await browser.newContext({ reducedMotion: 'no-preference' })
+  const defaultPage = await defaultContext.newPage()
+  await defaultPage.goto('/home')
+  expect(await animationName(defaultPage)).toBe('clients-marquee')
+  await defaultContext.close()
+
   const context = await browser.newContext({ reducedMotion: 'reduce' })
   const page = await context.newPage()
   await page.goto('/home')
-  expect(
-    await page
-      .getByTestId('clients-track')
-      .evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe('none')
+  expect(await animationName(page)).toBe('none')
   await context.close()
 })

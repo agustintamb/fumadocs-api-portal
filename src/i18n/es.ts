@@ -6,7 +6,6 @@ export const es = {
     logoAlt: 'Portal de APIs',
   },
   nav: {
-    label: 'Navegación principal',
     home: 'Inicio',
     dashboard: 'Dashboard',
     docs: 'Documentación',
@@ -16,6 +15,7 @@ export const es = {
     label: 'Navegación del pie de página',
     pages: 'Páginas',
     docs: 'Documentación',
+    introduction: 'Introducción',
     apis: 'APIs',
   },
   home: {

@@ -1,6 +1,10 @@
-import type { Stat } from '@/data/dashboard'
+export interface StatCardProps {
+  label: string
+  value: string
+  detail: string
+}
 
-export function StatCard({ label, value, detail }: Stat) {
+export function StatCard({ label, value, detail }: StatCardProps) {
   return (
     <div className="bg-fd-card border-fd-border rounded-lg border p-5">
       <p className="text-fd-muted-foreground text-sm">{label}</p>

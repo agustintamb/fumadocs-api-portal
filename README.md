@@ -30,7 +30,7 @@ El portal queda disponible en http://localhost:3000 (la raíz redirige a `/home`
 | `npm test`          | Corre los tests unitarios (Vitest).                                                                                   |
 | `npm run test:e2e`  | Corre el smoke test de Playwright. Hace el build y levanta el servidor en el puerto 3100 si no hay uno corriendo ahí. |
 | `npm run lint`      | Corre ESLint.                                                                                                         |
-| `npm run typecheck` | Corre `tsc --noEmit`.                                                                                                 |
+| `npm run typecheck` | Genera los tipos de Next (`next typegen`) y corre `tsc --noEmit`.                                                     |
 
 Otros scripts: `lint:fix`, `format`, `format:check` y `test:watch`.
 

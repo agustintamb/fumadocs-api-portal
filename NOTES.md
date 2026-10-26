@@ -22,18 +22,18 @@ pestañas del layout, "Layout Tab" en el original). Están todas en `src/lib/tra
 
 ## Qué quedó en inglés
 
-| Texto                                                                                            | Dónde aparece                                                 | Por qué                                                                                                           |
-| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `Authorization`                                                                                  | Etiqueta de la fila de autenticación del playground           | Es el nombre del header HTTP; la librería lo escribe fijo en el código (`auth.js`), no pasa por las traducciones. |
-| `header`                                                                                         | Chip de ubicación del parámetro de autenticación              | Fijo en la librería; además es el valor técnico (`in: header`).                                                   |
-| `flow`, `client_id`, `authorization_url`, `redirect_uri`                                         | Panel de OAuth2                                               | Nombres de campos de OAuth2 escritos fijos en la librería.                                                        |
-| `body`, `response`                                                                               | Raíz del esquema en la referencia                             | Etiquetas fijas en la librería (`operation/index.js`).                                                            |
-| `string`, `integer`, `array<…>`, `unknown`                                                       | Tipos de los campos                                           | Notación de tipos de JSON Schema; se dejan como literales técnicos.                                               |
-| `TypeScript`                                                                                     | Botón para copiar el tipo                                     | Fijo en la librería (`copy-typescript.js`).                                                                       |
-| `cURL`, `JSON`, `Bearer <token>`, `Basic <token>`, `Ctrl`                                        | Ejemplos de código, selector de formato, placeholders y atajo | Nombres propios, formatos o valores literales de headers.                                                         |
-| `Callbacks`, `Cookies`, `OK`                                                                     | Secciones y respuestas de la referencia                       | Se dejaron en inglés en `translations.ts` porque son términos técnicos habituales.                                |
-| Mensaje de error del proxy (`[Proxy] The host "localhost" doesn't resolve to a public address…`) | Respuesta al enviar una solicitud a un host privado           | Lo genera `createProxy` de fumadocs-openapi; no tiene hook de traducción.                                         |
-| `aria-label` de la navegación superior                                                           | Lector de pantalla                                            | Fumadocs no expone una opción para cambiarlo.                                                                     |
+| Texto                                                                                            | Dónde aparece                                                 | Por qué                                                                                                            |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `Authorization`                                                                                  | Etiqueta de la fila de autenticación del playground           | Es el nombre del header HTTP; la librería lo escribe fijo en el código (`auth.js`), no pasa por las traducciones.  |
+| `header`                                                                                         | Chip de ubicación del parámetro de autenticación              | Fijo en la librería; además es el valor técnico (`in: header`).                                                    |
+| `flow`, `client_id`, `authorization_url`, `redirect_uri`                                         | Panel de OAuth2                                               | Nombres de campos de OAuth2 escritos fijos en la librería.                                                         |
+| `body`, `response`                                                                               | Raíz del esquema en la referencia                             | Etiquetas fijas en la librería (`operation/index.js`).                                                             |
+| `string`, `integer`, `array<…>`, `unknown`                                                       | Tipos de los campos                                           | Notación de tipos de JSON Schema; se dejan como literales técnicos.                                                |
+| `TypeScript`                                                                                     | Botón para copiar el tipo                                     | Fijo en la librería (`copy-typescript.js`).                                                                        |
+| `cURL`, `JSON`, `Bearer <token>`, `Basic <token>`, `Ctrl`                                        | Ejemplos de código, selector de formato, placeholders y atajo | Nombres propios, formatos o valores literales de headers.                                                          |
+| `Callbacks`, `Cookies`, `OK`                                                                     | Secciones y respuestas de la referencia                       | Se dejaron en inglés en `translations.ts` porque son términos técnicos habituales.                                 |
+| Mensaje de error del proxy (`[Proxy] The host "localhost" doesn't resolve to a public address…`) | Respuesta al enviar una solicitud a un host privado           | Lo genera `createProxy` de fumadocs-openapi; no tiene hook de traducción.                                          |
+| Falta el `aria-label` de la navegación superior                                                  | Lector de pantalla                                            | Fumadocs no le pone etiqueta ni expone una opción para hacerlo; las páginas de docs no tienen un landmark `<nav>`. |
 
 Capturas:
 
@@ -95,11 +95,12 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 - El buscador del API Store busca en nombre, descripción y tags, como pide el spec. El ejemplo
   del plan de buscar "CONTENIDO" necesitaría buscar también por categoría; no se agregó ni se
   prueba en el smoke test.
-- La búsqueda de la documentación (Orama) usa el stemming en inglés.
-- En los breadcrumbs de la búsqueda la sección aparece como "Api store", porque
-  `content/api-store/meta.json` no tiene `title`. Se arregla agregando `"title": "API Store"`.
+- El buscador de la documentación (Orama) usa un tokenizador multilingüe y no distingue
+  acentos ("pagina" encuentra "página"); no hace falta configurarlo.
 - El desplegable de pestañas de APIs también lista "Documentación".
-- La página 404 de la raíz se muestra sin la barra superior.
+- La página 404 de la raíz (`src/app/not-found.tsx`) no está dentro de ningún layout: la barra
+  superior aparece recién después de la hidratación y, con JavaScript desactivado, la respuesta es
+  un shell `__next_error__` vacío.
 - Fumadocs no tiene un token de radio de borde; los componentes propios usan `rounded-lg`.
 
 ## Alternativas previstas en el plan (Tasks 3 y 4)

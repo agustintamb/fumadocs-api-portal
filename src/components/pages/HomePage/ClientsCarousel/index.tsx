@@ -1,7 +1,11 @@
 import { CLIENTS } from '@/data/clients'
 import { es } from '@/i18n/es'
 
-function LogoList({ hidden }: { hidden?: boolean }) {
+export interface LogoListProps {
+  hidden?: boolean
+}
+
+function LogoList({ hidden }: LogoListProps) {
   return (
     <ul
       aria-hidden={hidden || undefined}

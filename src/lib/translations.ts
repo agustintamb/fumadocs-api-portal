@@ -7,7 +7,7 @@ import type { Translations as UiTranslations } from 'fumadocs-ui/i18n'
 type TranslationKey = keyof UiTranslations | keyof OpenapiTranslations
 
 // `add()` accepts a Partial, so `satisfies` makes tsc reject any missing key.
-const es = {
+const SPANISH_TRANSLATIONS = {
   // fumadocs-ui
   'Ask AI(AI chat button)': 'Preguntar a la IA',
   'Back to Home(404 not found page)': 'Volver al inicio',
@@ -252,4 +252,4 @@ const es = {
 export const translations = defineTranslations()
   .extend(uiTranslations())
   .extend(openapiTranslations())
-  .add(es)
+  .add(SPANISH_TRANSLATIONS)

@@ -16,7 +16,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
   },
   {
     title: es.footer.docs,
-    links: [{ label: 'Introducción', href: '/introduction' }],
+    links: [{ label: es.footer.introduction, href: '/introduction' }],
   },
   {
     title: es.footer.apis,
