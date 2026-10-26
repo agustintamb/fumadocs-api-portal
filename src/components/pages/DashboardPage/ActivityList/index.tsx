@@ -7,7 +7,7 @@ const STATUS_CLASSES: Record<ActivityStatus, string> = {
   pending: 'bg-fd-muted text-fd-muted-foreground',
 }
 
-interface ActivityListProps {
+export interface ActivityListProps {
   items: ActivityItem[]
 }
 

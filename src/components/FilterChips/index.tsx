@@ -1,10 +1,13 @@
-import { cn } from '@/lib/cn'
-
-interface FilterChipsProps<T> {
+export interface FilterChipsProps<T> {
   options: { value: T; label: string }[]
   value: T
   onChange: (value: T) => void
   label: string
+}
+
+const CHIP_CLASSES: Record<'pressed' | 'idle', string> = {
+  pressed: 'bg-fd-primary text-fd-primary-foreground border-fd-primary',
+  idle: 'border-fd-border text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground',
 }
 
 export function FilterChips<T extends string>({
@@ -23,12 +26,7 @@ export function FilterChips<T extends string>({
             type="button"
             aria-pressed={pressed}
             onClick={() => onChange(option.value)}
-            className={cn(
-              'rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors',
-              pressed
-                ? 'bg-fd-primary text-fd-primary-foreground border-fd-primary'
-                : 'border-fd-border text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground',
-            )}
+            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${CHIP_CLASSES[pressed ? 'pressed' : 'idle']}`}
           >
             {option.label}
           </button>
