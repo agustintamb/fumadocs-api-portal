@@ -1,0 +1,75 @@
+---
+title: Personalización
+description: Dónde se configura cada aspecto del portal.
+---
+
+Esta página resume qué se puede cambiar en el portal y dónde se configura cada cosa.
+
+## Tema y colores
+
+Los colores salen de variables de Fumadocs (`--color-fd-*`) que se redefinen en `src/app/global.css`, en el bloque `@theme` para el modo claro y en `.dark` para el oscuro.
+
+```css title="src/app/global.css"
+@theme {
+  --color-fd-primary: hsl(250 84% 54%);
+  --color-fd-accent: hsl(250 84% 95%);
+}
+
+.dark {
+  --color-fd-primary: hsl(250 84% 68%);
+  --color-fd-accent: hsl(250 84% 15%);
+}
+```
+
+Al cambiar el color primario, se actualizan también los enlaces, el resaltado de la barra lateral y el logo, que usa ese color en su degradé.
+
+## Fuentes
+
+La tipografía es Geist (sans y mono). Se carga en `src/app/layout.tsx` con el paquete `geist` y se asigna a Tailwind con `--font-sans` y `--font-mono` en `src/app/global.css`.
+
+## Header y logo
+
+- El header es el mismo en todas las secciones: `src/components/SiteHeader/`.
+- Los links del navbar se definen en `NAV_LINKS`, dentro de `src/lib/layout.shared.tsx`.
+- El logo es un componente de React (`src/components/SiteLogo/index.tsx`) y no una imagen, por lo que toma el color primario del tema.
+
+<Callout type="info" title="Menú en pantallas chicas">
+  En Docs y en las páginas de API, los links del navbar también se muestran en la barra
+  lateral desplegable, porque `baseOptions()` los registra como items del menú.
+</Callout>
+
+## Textos y traducciones
+
+| Qué                                 | Dónde                     |
+| ----------------------------------- | ------------------------- |
+| Textos propios del portal           | `src/i18n/es.ts`          |
+| Textos de Fumadocs y del playground | `src/lib/translations.ts` |
+| Datos de ejemplo                    | `src/data/`               |
+
+`src/lib/translations.ts` está tipado contra la librería: si una versión nueva agrega textos sin traducir, `npm run typecheck` falla.
+
+## Documentación
+
+- Las páginas viven en `content/docs/` y se ven en `/docs/...`.
+- El orden, los separadores y los links de la barra lateral se definen en `content/docs/meta.json`.
+- `sidebarTitle` en el frontmatter permite un nombre más corto en la barra lateral que el título de la página.
+
+```json title="content/docs/meta.json"
+{
+  "title": "Documentación",
+  "root": true,
+  "pages": [
+    "---[Sparkles]Primeros pasos---",
+    "introduction",
+    "---[Link]Links útiles---",
+    "[Book][Documentación de Fumadocs](https://fumadocs.dev/docs)"
+  ]
+}
+```
+
+## APIs
+
+- Las especificaciones están en `apis/` y se registran en `src/lib/openapi.ts`.
+- Las páginas se generan a partir de los YAML, una por tag, en `src/lib/source.ts`.
+- Cada API tiene su `meta.json` en `content/api-store/`.
+- Las tarjetas del API Store salen de `src/data/apis.ts`.

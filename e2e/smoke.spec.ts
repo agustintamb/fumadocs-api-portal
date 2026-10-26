@@ -124,6 +124,32 @@ test('marks Docs as current on docs pages', async ({ page }) => {
   ).toHaveAttribute('aria-current', 'page')
 })
 
+test('navigates the docs sidebar', async ({ page }) => {
+  await page.goto('/docs/introduction')
+  const sidebar = page.locator('#nd-sidebar')
+  for (const section of ['Primeros pasos', 'Ejemplos MDX', 'Referencia', 'Links útiles'])
+    await expect(sidebar.getByText(section, { exact: true })).toBeVisible()
+  await expect(
+    sidebar.getByRole('link', { name: 'Documentación de Fumadocs' }),
+  ).toHaveAttribute('href', 'https://fumadocs.dev/docs')
+
+  for (const [link, heading] of [
+    ['Componentes', 'Componentes'],
+    ['Catálogo de APIs (MDX)', 'Catálogo de APIs (MDX)'],
+    ['Personalización', 'Personalización'],
+    ['Estructura del proyecto', 'Estructura del proyecto'],
+  ]) {
+    await sidebar.getByRole('link', { name: link, exact: true }).click()
+    await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible()
+    await expect(
+      page
+        .locator('header')
+        .first()
+        .getByRole('link', { name: 'Documentación', exact: true }),
+    ).toHaveAttribute('aria-current', 'page')
+  }
+})
+
 for (const [root, landing] of [
   ['/api-store/petstore', /\/api-store\/petstore\/pet$/],
   ['/api-store/blog', /\/api-store\/blog\/v1\/posts$/],

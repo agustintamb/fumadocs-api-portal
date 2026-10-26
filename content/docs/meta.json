@@ -1,5 +1,16 @@
 {
   "title": "Documentación",
   "root": true,
-  "pages": ["---Primeros pasos---", "introduction"]
+  "pages": [
+    "---[Sparkles]Primeros pasos---",
+    "introduction",
+    "---[FileText]Ejemplos MDX---",
+    "components",
+    "api-catalog",
+    "---[BookOpen]Referencia---",
+    "customization",
+    "project-structure",
+    "---[Link]Links útiles---",
+    "[Book][Documentación de Fumadocs](https://fumadocs.dev/docs)"
+  ]
 }

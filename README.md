@@ -53,6 +53,10 @@ $env:SCREENSHOTS = '1'; npx playwright test e2e/screenshots.spec.ts
 | `/dashboard`                               | Estadísticas y actividad reciente filtrable.                                |
 | `/api-store`                               | Catálogo de APIs con buscador y filtros.                                    |
 | `/docs/introduction`                       | Introducción de la documentación; `/docs` y `/introduction` redirigen aquí. |
+| `/docs/components`                         | Ejemplos de componentes de Fumadocs en MDX.                                 |
+| `/docs/api-catalog`                        | Catálogo de APIs escrito en MDX.                                            |
+| `/docs/customization`                      | Dónde se personaliza cada aspecto del portal.                               |
+| `/docs/project-structure`                  | Carpetas y archivos clave.                                                  |
 | `/api-store/petstore`                      | Referencia y playground de Petstore (lleva a la primera página).            |
 | `/api-store/blog/v1`, `/api-store/blog/v2` | Blog con selector de versión; `/api-store/blog` lleva a v1.                 |
 | `/api-store/auth`                          | Referencia y playground de Auth.                                            |
@@ -81,7 +85,9 @@ Otras piezas:
   y redirige las carpetas sin página propia a su primera página.
 - `src/app/api/proxy/route.ts`: proxy que usa el playground para evitar CORS.
 - `src/app/(home)/{home,dashboard,api-store}/`: vistas, hooks y `_components/` de cada página, junto a su `page.tsx`.
-- `content/docs/`: páginas MDX de la documentación.
+- `content/docs/`: páginas MDX de la documentación; el orden, los separadores y el link externo
+  de la barra lateral están en `content/docs/meta.json`. Los componentes MDX disponibles se
+  registran en `src/components/mdx.tsx`.
 
 Los archivos de `apis/` son copias byte a byte de los del sandbox. No se editan; si cambian, se
 reemplaza el archivo completo.

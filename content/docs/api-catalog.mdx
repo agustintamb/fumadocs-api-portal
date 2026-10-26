@@ -1,0 +1,47 @@
+---
+title: Catálogo de APIs (MDX)
+description: El mismo catálogo del API Store, escrito en MDX con tarjetas de Fumadocs.
+---
+
+Esta página es la versión MDX del [API Store](/api-store). Muestra el mismo catálogo, pero está escrita en un archivo `.mdx` con los componentes `Cards` y `Card`.
+
+## APIs disponibles
+
+<Cards>
+  <Card title="Petstore API" href="/api-store/petstore">
+    El clásico ejemplo Swagger Petstore. Operaciones CRUD de mascotas, inventario de la
+    tienda y gestión de usuarios.
+  </Card>
+  <Card title="Blog API" href="/api-store/blog">
+    Gestión de posts, comentarios y perfiles de autores. Permite paginar y filtrar por tag
+    o autor. Versionada: v1 y v2 disponibles.
+  </Card>
+  <Card title="Auth API" href="/api-store/auth">
+    Servicio de autenticación con JWT. Registro, login, renovación de token, recuperación
+    de contraseña y gestión del perfil.
+  </Card>
+</Cards>
+
+## MDX o página de React
+
+<Callout title="Dos enfoques para el mismo contenido">
+  El API Store (`src/app/(home)/api-store/`) es una página de React con búsqueda y
+  filtros. Esta versión es contenido estático en MDX. Ambos enfoques son válidos.
+</Callout>
+
+### Cuándo usar MDX
+
+- Contenido de documentación con formato (encabezados, tablas, bloques de código).
+- Páginas que pueden editar personas sin conocimientos de React.
+- Contenido estático o casi estático.
+
+### Cuándo usar una página de React
+
+- Páginas con estado, como búsquedas o filtros.
+- Paneles, formularios o cualquier interfaz interactiva.
+- Páginas que obtienen datos dinámicamente.
+
+<Callout type="idea" title="Se pueden combinar">
+  Las páginas de React pueden mostrar contenido MDX, y las páginas MDX pueden incluir
+  componentes de React registrados en `src/components/mdx.tsx`.
+</Callout>

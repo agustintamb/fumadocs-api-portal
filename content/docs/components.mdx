@@ -1,0 +1,126 @@
+---
+title: Componentes
+description: Componentes de Fumadocs disponibles en las páginas MDX de este portal.
+---
+
+Las páginas MDX de `content/docs/` pueden usar los componentes de Fumadocs sin importarlos. Están registrados en `src/components/mdx.tsx`.
+
+## Callouts
+
+`Callout` admite los tipos `info` (el predeterminado), `warn`, `error`, `success` e `idea`.
+
+<Callout title="Información">
+  Resalta contexto o notas importantes. Admite **Markdown** en el contenido.
+</Callout>
+
+<Callout type="warn" title="Atención">
+  Útil para avisos de cambios incompatibles, funciones en desuso o requisitos previos.
+</Callout>
+
+<Callout type="success" title="Listo">
+  Confirma un paso completado o una configuración que funciona.
+</Callout>
+
+<Callout type="error" title="Error">
+  Describe fallos, respuestas de error o estados inválidos.
+</Callout>
+
+<Callout type="idea" title="Sugerencia">
+  Atajos, buenas prácticas o consejos que no son evidentes.
+</Callout>
+
+## Tabs
+
+Muestran una misma información en variantes alternativas, por ejemplo un comando por gestor de paquetes.
+
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tab value="npm">
+
+```bash
+npm run dev
+```
+
+  </Tab>
+  <Tab value="pnpm">
+
+```bash
+pnpm dev
+```
+
+  </Tab>
+  <Tab value="yarn">
+
+```bash
+yarn dev
+```
+
+  </Tab>
+</Tabs>
+
+## Cards
+
+`Cards` agrupa tarjetas con `Card`; cada una puede enlazar a otra página.
+
+<Cards>
+  <Card title="Catálogo de APIs (MDX)" href="/docs/api-catalog">
+    El catálogo de APIs escrito en MDX.
+  </Card>
+  <Card title="Personalización" href="/docs/customization">
+    Tema, fuentes, header y traducciones.
+  </Card>
+  <Card title="Estructura del proyecto" href="/docs/project-structure">
+    Carpetas y archivos clave.
+  </Card>
+</Cards>
+
+## Steps
+
+`Steps` numera una secuencia de pasos; cada `Step` lleva su título como encabezado.
+
+<Steps>
+  <Step>
+
+### Instalar las dependencias
+
+```bash
+npm install
+```
+
+  </Step>
+  <Step>
+
+### Levantar el servidor de desarrollo
+
+```bash
+npm run dev
+```
+
+  </Step>
+  <Step>
+
+### Abrir el portal
+
+El portal queda disponible en `http://localhost:3000`.
+
+  </Step>
+</Steps>
+
+## Bloques de código con título
+
+Un bloque de código lleva título con el atributo `title`.
+
+```ts title="src/lib/openapi.ts"
+export const orders = createOpenAPI({
+  proxyUrl: PROXY_URL,
+  input: ['./apis/orders-api.yaml'],
+})
+```
+
+## Tablas
+
+| Componente | Origen                         | Uso                    |
+| ---------- | ------------------------------ | ---------------------- |
+| `Callout`  | `fumadocs-ui/mdx`              | Avisos destacados      |
+| `Cards`    | `fumadocs-ui/mdx`              | Tarjetas con enlaces   |
+| `Tabs`     | `fumadocs-ui/components/tabs`  | Variantes alternativas |
+| `Steps`    | `fumadocs-ui/components/steps` | Secuencias numeradas   |
