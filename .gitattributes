@@ -1,2 +1,7 @@
 * text=auto eol=lf
 *.png binary
+apis/** -text
+public/logo-light.svg -text
+public/logo-dark.svg -text
+public/banner.svg -text
+public/banner-dark.svg -text
