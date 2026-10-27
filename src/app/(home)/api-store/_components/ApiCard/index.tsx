@@ -1,15 +1,10 @@
 import Link from 'next/link'
-import type { ApiCardData, ApiStatus } from '@/data/apis'
+import { ApiBadges } from '@/components/ApiBadges'
+import type { ApiCardData } from '@/data/apis'
 import { es } from '@/i18n/es'
 
 export interface ApiCardProps {
   api: ApiCardData
-}
-
-const STATUS_CLASSES: Record<ApiStatus, string> = {
-  stable: 'bg-fd-accent text-fd-accent-foreground',
-  beta: 'bg-fd-secondary text-fd-secondary-foreground',
-  deprecated: 'bg-fd-muted text-fd-muted-foreground',
 }
 
 export function ApiCard({ api }: ApiCardProps) {
@@ -17,11 +12,7 @@ export function ApiCard({ api }: ApiCardProps) {
     <article className="bg-fd-card border-fd-border flex flex-col gap-4 rounded-lg border p-5">
       <header className="flex items-start justify-between gap-3">
         <h2 className="text-lg font-semibold">{api.name}</h2>
-        <span
-          className={`rounded-lg px-2 py-0.5 text-xs font-medium ${STATUS_CLASSES[api.status]}`}
-        >
-          {es.apiStore.status[api.status]}
-        </span>
+        <ApiBadges status={api.status} visibility={api.visibility} />
       </header>
       <p className="text-fd-muted-foreground text-sm">{api.description}</p>
       <ul className="flex flex-wrap gap-2">

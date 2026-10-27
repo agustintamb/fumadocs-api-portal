@@ -255,7 +255,8 @@ las specs.
 
 - **Visibilidad** (`visibility` en `src/data/apis.ts`, textos en `es.apiStore.visibility`):
   `internal` (**Interna**) es una API de la empresa y `public` (**Pública**) una de terceros. No
-  dice nada sobre credenciales.
+  dice nada sobre credenciales. Se muestra como badge, junto al estado, en la tarjeta del API
+  Store y al lado del título de cada página de la API (componente `ApiBadges`).
 - **Versiones**: cada versión es una carpeta con el id de la API como `root`, y el `meta.json`
   de la API lista la más nueva primero (`["v2", "v1"]`). Así `/api-store/portal` abre la v2 y el
   selector la muestra arriba.

@@ -241,6 +241,23 @@ test('publishes the portal api in the api store', async ({ page }) => {
   ).toBeVisible()
 })
 
+test('marks apis as internal or public', async ({ page }) => {
+  await page.goto('/api-store')
+  const card = (name: string) => page.getByRole('article').filter({ hasText: name })
+  await expect(card('Portal API')).toContainText('Interna')
+  for (const name of ['Petstore API', 'PokeAPI'])
+    await expect(card(name)).toContainText('Pública')
+
+  await page.goto('/api-store/portal/v2/salud')
+  const titleRow = page.locator('div:has(> h1)').first()
+  await expect(titleRow.getByText('Interna', { exact: true })).toBeVisible()
+  await expect(titleRow.getByText('beta', { exact: true })).toBeVisible()
+
+  await page.goto('/docs/introduction')
+  for (const text of ['Interna', 'Pública'])
+    await expect(page.getByText(text, { exact: true })).toHaveCount(0)
+})
+
 test('petstore playground and auth are in spanish', async ({ page }) => {
   await page.goto('/api-store/petstore/v3/pet')
   await expect(page.getByText('Parámetros de consulta').first()).toBeVisible()

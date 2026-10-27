@@ -7,10 +7,13 @@ import {
 } from 'fumadocs-ui/layouts/notebook/page'
 import { flattenTree } from 'fumadocs-core/page-tree'
 import { notFound } from 'next/navigation'
+import { ApiBadges } from '@/components/ApiBadges'
 import { getMDXComponents } from '@/components/mdx'
+import { API_CATALOG } from '@/data/apis'
 import { OpenApiPage } from '@/components/OpenApiPage'
 import { PageRedirect } from '@/components/PageRedirect'
 import { es } from '@/i18n/es'
+import { findApiByUrl } from '@/utils/find-api-by-url'
 import { findPageNeighbours } from '@/utils/find-page-neighbours'
 import { getFolderSlugs } from '@/utils/get-folder-slugs'
 import type { Metadata } from 'next'
@@ -31,6 +34,7 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
 
   const { data } = page
   if ('getOpenAPIPageProps' in data) {
+    const api = findApiByUrl(page.url, API_CATALOG)
     return (
       <DocsPage
         toc={data.toc}
@@ -38,7 +42,10 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
         // Fumadocs' own footer would link to the endpoint anchors of the sidebar.
         footer={{ items: findPageNeighbours(source.getPageTree(), page.url) }}
       >
-        <DocsTitle>{data.title}</DocsTitle>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <DocsTitle>{data.title}</DocsTitle>
+          {api && <ApiBadges status={api.status} visibility={api.visibility} />}
+        </div>
         <DocsBody>
           <OpenApiPage {...data.getOpenAPIPageProps()} />
         </DocsBody>
