@@ -257,7 +257,12 @@ Qué se puede personalizar del playground y qué queda fijo, más el soporte de 
   y no afectan el resultado.
 - Si queda una carpeta `.next/` vieja, `tsc` puede fallar por tipos generados de rutas que ya no
   existen. Se resuelve borrando `.next/`.
-- Vitest a veces falla en frío por timeout de un worker; al volver a correrlo pasa.
+- Vitest a veces falla en frío por timeout de un worker ("11 errors" con solo 2 archivos
+  ejecutados, en general en paralelo con un build); al volver a correrlo pasa. El 27/10 no se
+  pudo reproducir: `npx vitest run --no-cache` cinco veces, borrando `node_modules/.vite` y en
+  paralelo con `npm run build`, siempre 14 archivos / 46 tests en verde (4–8 s, 75–80 % del
+  tiempo creando jsdom). Por eso no se tocó `vitest.config.ts`; si vuelve a pasar, la primera
+  prueba sería `pool: 'vmThreads'` (jsdom una vez por worker, como sugiere Vitest).
 - El logo es simulado (`src/components/SiteLogo/`): un círculo con degradé en el violeta del tema
   y el texto "Fumadocs". `es.site.title` ("Portal de APIs · Fumadocs") se mantiene para el
   `<title>` de las páginas; el header muestra solo "Fumadocs".
