@@ -1,9 +1,28 @@
 # Portal de APIs · Fumadocs
 
-Prueba de concepto de un developer portal construido con Next.js 16, Fumadocs 16 y
-fumadocs-openapi 12. Reproduce la experiencia del sandbox de Zudoku (Inicio, Dashboard,
-API Store, Documentación y la referencia de cuatro especificaciones OpenAPI) con toda la
-interfaz en español.
+Prueba de concepto de un **developer portal**: un sitio donde se publican APIs (con su
+referencia generada desde OpenAPI y un playground para probarlas) junto con documentación
+escrita en MDX. Está construido con **Next.js 16** y el ecosistema **Fumadocs**, y reproduce la
+experiencia del sandbox de Zudoku con toda la interfaz en español.
+
+Las notas de la evaluación (qué se tradujo, qué funciona en el playground, qué costó y qué falta
+respecto de Zudoku) están en [`NOTES.md`](NOTES.md).
+
+## Qué se puede hacer
+
+- **Inicio, Dashboard y API Store**: páginas propias en React. El API Store es un catálogo con
+  buscador y filtros por API.
+- **Referencia de APIs** generada desde YAML OpenAPI (Petstore, Blog v1/v2, Auth): una página por
+  recurso (tag); en la barra lateral cada recurso lista sus endpoints con el verbo HTTP.
+- **Playground** en cada endpoint: completar parámetros, autenticarse (API key, Bearer, OAuth2
+  implícito), elegir servidor y enviar la solicitud. También muestra ejemplos en cURL,
+  JavaScript, Go, Python, Java, C# y Rust.
+- **Selector de versión** por API, con el `info.version` de cada spec. Al cambiar de versión se
+  va a la página equivalente.
+- **Documentación en MDX** con componentes listos (callouts, tabs, pasos, tarjetas, etc.),
+  separadores y links externos en la barra lateral.
+- **Búsqueda** global (Ctrl+K) sobre documentación y referencia.
+- **Tema claro/oscuro**, diseño responsive y un único header en todo el sitio.
 
 ## Requisitos
 
@@ -18,6 +37,9 @@ npm run dev
 ```
 
 El portal queda disponible en http://localhost:3000 (la raíz redirige a `/home`).
+
+En desarrollo, Next compila cada página la primera vez que se visita, así que la primera carga
+tarda. Para ver la velocidad real: `npm run build && npm start`.
 
 ## Comandos
 
@@ -37,11 +59,93 @@ Otros scripts: `lint:fix`, `format`, `format:check` y `test:watch`.
 La primera vez que se corren los tests e2e hace falta instalar el navegador:
 `npx playwright install chromium`.
 
-Las capturas de `docs/screenshots/` se regeneran con la variable `SCREENSHOTS=1` (igual que
-`test:e2e`, reutilizan el servidor del puerto 3100 o levantan uno):
+Las capturas de `docs/screenshots/` (evidencia para `NOTES.md`, la app no las usa) se regeneran
+con la variable `SCREENSHOTS=1`:
 
 ```powershell
 $env:SCREENSHOTS = '1'; npx playwright test e2e/screenshots.spec.ts
+```
+
+## Cómo funciona
+
+### Next.js como base
+
+Es una app de Next.js con **App Router**. Las rutas están en `src/app/` y se agrupan en dos
+_route groups_, cada uno con su layout:
+
+- `(home)`: Inicio, Dashboard y API Store. Usa el `HomeLayout` de Fumadocs (header + contenido a
+  todo el ancho + footer propio).
+- `(docs)`: documentación y referencia de APIs. Usa el `DocsLayout` **Notebook** de Fumadocs
+  (header arriba, barra lateral, contenido y tabla de contenidos). Una sola ruta catch-all,
+  `[...slug]/page.tsx`, renderiza todas estas páginas.
+
+Además hay dos route handlers: `/api/search` (búsqueda) y `/api/proxy` (proxy del playground).
+Las páginas se generan estáticamente en el build (`generateStaticParams`).
+
+### Las piezas de Fumadocs
+
+Fumadocs no es un sitio armado sino un conjunto de librerías que se integran en una app de Next.
+Este proyecto usa cuatro:
+
+| Paquete            | Rol                                                                                                                                                                                                                                                                                   |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fumadocs-mdx`     | Lee los `.mdx` y `meta.json` de `content/`, valida su frontmatter (con `zod`) y los compila. Se conecta a Next con `createMDX()` en `next.config.mjs`; `defineDocs` (en `src/lib/source.ts`) define la colección.                                                                     |
+| `fumadocs-core`    | El motor sin UI. Su `loader()` une varias fuentes de contenido en un único **page tree** (el árbol de la barra lateral) y resuelve URL → página. También provee la búsqueda (Orama), los plugins del loader y utilidades como `flattenTree`.                                          |
+| `fumadocs-ui`      | La interfaz: layouts (`HomeLayout`, `DocsLayout` Notebook), página de docs (`DocsPage`, TOC, anterior/siguiente), componentes MDX, diálogo de búsqueda, tema claro/oscuro e i18n. En este proyecto es un alias de `@fumadocs/base-ui` (construido sobre Base UI + Tailwind CSS 4).    |
+| `fumadocs-openapi` | Convierte specs OpenAPI en páginas: `createOpenAPI()` carga el YAML y `staticSource()` genera una página virtual por tag, que se suma al `loader()` como una fuente más. En el cliente, `createOpenAPIPage()` renderiza la referencia y el playground; `createProxy()` arma el proxy. |
+
+El recorrido de una página es:
+
+```text
+content/*.mdx ──(fumadocs-mdx)──┐
+                                ├─► loader() + plugins ─► page tree + páginas ─► [...slug]/page.tsx
+apis/*.yaml ──(fumadocs-openapi)┘        (fumadocs-core)                          (fumadocs-ui)
+```
+
+1. `src/lib/source.ts` arma el `loader()` con la colección MDX y una fuente generada por cada
+   spec. El orden y los títulos de la barra lateral salen de los `meta.json`.
+2. Los plugins del loader ajustan el árbol: `sidebar-title` (títulos cortos), `endpointsPlugin`
+   (endpoints con verbo bajo cada recurso), el de fumadocs-openapi (badges) y el de íconos Lucide.
+3. `[...slug]/page.tsx` busca la página: si es OpenAPI renderiza `<OpenApiPage>`, si es MDX su
+   contenido con los componentes de `src/components/mdx.tsx`. Si la URL es una carpeta sin página
+   (`/docs`, `/api-store/blog`), redirige a su primera página.
+4. `src/app/(docs)/layout.tsx` pasa el árbol al `DocsLayout`, que dibuja la barra lateral. Las
+   carpetas con `root` en `meta.json` son secciones: la barra lateral muestra solo la sección
+   actual, y entre secciones se navega con el header.
+
+### Otras librerías
+
+- **Tailwind CSS 4**: estilos de los componentes propios y de Fumadocs (sus colores son
+  variables `--color-fd-*`).
+- **lucide-react**: íconos (también usables desde `meta.json` y frontmatter con `icon`).
+- **geist**: tipografías Geist Sans y Mono.
+- **yaml**: lee los YAML para el catálogo del API Store (versión y cantidad de endpoints).
+- **zod**: esquema del frontmatter (`sidebarTitle`).
+- **Vitest + Testing Library** (unitarios) y **Playwright** (e2e y capturas).
+
+## Estructura
+
+```text
+apis/                       Specs OpenAPI (copias byte a byte; no se editan)
+content/
+  meta.json                 Raíz del árbol
+  docs/                     Documentación MDX + meta.json (orden, separadores, link externo)
+  api-store/                Una carpeta por API con su meta.json (las páginas se generan)
+src/
+  app/
+    (home)/                 Inicio, Dashboard y API Store: page.tsx + vista + hook + _components/
+    (docs)/                 Layout Notebook y [...slug]/page.tsx (docs y referencia)
+    api/search/, api/proxy/ Route handlers
+    layout.tsx              RootProvider de Fumadocs (tema, búsqueda, traducciones)
+    global.css              Tailwind + presets de Fumadocs + colores del tema
+    not-found.tsx           Página 404
+  components/               Componentes compartidos (SiteHeader, SiteLogo, VersionSelect, MethodBadge, ...)
+  lib/                      source.ts, openapi.ts, endpoints-plugin.tsx, layout.shared.tsx, translations.ts
+  utils/                    Funciones puras (con tests al lado)
+  data/                     Datos de ejemplo (catálogo, dashboard, clientes, footer)
+  i18n/es.ts                Textos propios de la interfaz
+e2e/                        Smoke test y capturas (Playwright)
+docs/screenshots/           Capturas referenciadas desde NOTES.md
 ```
 
 ## Rutas
@@ -61,7 +165,29 @@ $env:SCREENSHOTS = '1'; npx playwright test e2e/screenshots.spec.ts
 | `/api-store/blog/v1`, `/api-store/blog/v2` | Blog con selector de versión; `/api-store/blog` lleva a v1.                 |
 | `/api-store/auth`                          | Referencia y playground de Auth.                                            |
 
-## Dónde se configura cada cosa
+## Qué se puede configurar y extender
+
+Fumadocs se personaliza por niveles, de menor a mayor esfuerzo. Conviene usar siempre el nivel
+más bajo que resuelva el caso.
+
+| Nivel                       | Qué permite                                                                                                                                                                        | Dónde en este proyecto                                                                    |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Contenido**               | Páginas, orden, separadores (`---Título---`), links externos, íconos, secciones (`root`), títulos cortos (`sidebarTitle`).                                                         | `content/**` (MDX y `meta.json`)                                                          |
+| **Opciones de los layouts** | Links del navbar, búsqueda, toggle de tema, banner de la barra lateral, pestañas.                                                                                                  | `src/lib/layout.shared.tsx`, `src/app/(home)/layout.tsx`, `src/app/(docs)/layout.tsx`     |
+| **Tema**                    | Colores (`--color-fd-*`), tipografías y ancho del layout (`--fd-layout-width`) por variables CSS, en claro y oscuro.                                                               | `src/app/global.css`                                                                      |
+| **Textos**                  | Traducción de todos los textos de fumadocs-ui y fumadocs-openapi (tipado: el typecheck falla si falta una clave) y textos propios.                                                 | `src/lib/translations.ts`, `src/i18n/es.ts`                                               |
+| **Componentes MDX**         | Registrar componentes propios o reemplazar los de Fumadocs para usarlos en cualquier `.mdx`.                                                                                       | `src/components/mdx.tsx`                                                                  |
+| **Slots**                   | Reemplazar partes de un layout (header, barra lateral, búsqueda, toggle de tema, etc.) por componentes propios, sin copiar el resto.                                               | `slots.header` con `SiteHeader` en ambos layouts                                          |
+| **Plugins del loader**      | Transformar el page tree o las páginas (renombrar, agrupar, agregar nodos).                                                                                                        | `src/lib/source.ts` (`sidebar-title`), `src/lib/endpoints-plugin.tsx`                     |
+| **Opciones de OpenAPI**     | Una página por tag, por operación o por archivo; servidores, proxy y orígenes permitidos; render propio de campos del playground (`renderBodyField`) y de partes de la referencia. | `src/lib/openapi.ts`, `src/lib/source.ts` (`staticSource`), `src/components/OpenApiPage/` |
+| **Componentes propios**     | Usar las piezas de Fumadocs (`Popover`, `Collapsible`, `buttonVariants`, `SidebarTabsDropdown`, hooks de contexto) para armar componentes nuevos.                                  | `SiteHeader`, `VersionSelect`, `MethodBadge`                                              |
+| **Copiar el código fuente** | `npx @fumadocs/cli customize` o `add` copian layouts y componentes al repo (como shadcn/ui) para modificarlos libremente. Se pierde la actualización automática de esas piezas.    | No se usó                                                                                 |
+
+Los componentes de Fumadocs están hechos con Base UI y Tailwind, así que los propios se escriben
+con las mismas clases (`bg-fd-card`, `text-fd-muted-foreground`, etc.) y quedan integrados con el
+tema.
+
+### Dónde se configura cada cosa
 
 | Qué                   | Dónde                                                   |
 | --------------------- | ------------------------------------------------------- |
@@ -73,24 +199,23 @@ $env:SCREENSHOTS = '1'; npx playwright test e2e/screenshots.spec.ts
 | Navegación            | `src/lib/layout.shared.tsx` (`NAV_LINKS`)               |
 | Header                | `src/components/SiteHeader/`                            |
 | Logo                  | `src/components/SiteLogo/index.tsx`                     |
+| Redirecciones fijas   | `next.config.mjs`                                       |
 | APIs                  | `src/lib/openapi.ts` y `content/api-store/**/meta.json` |
 
-Otras piezas:
+## Cómo agregar una página de documentación
 
-- `src/lib/source.ts`: une el contenido MDX (`content/`) con las páginas generadas desde los
-  YAML.
-- `src/lib/endpoints-plugin.tsx`: plugin del `loader()` que lista en la barra lateral los
-  endpoints de cada recurso, con su verbo, como links a su ancla.
-- `src/app/(docs)/[...slug]/page.tsx`: renderiza las páginas de documentación y de referencia,
-  y redirige las carpetas sin página propia a su primera página.
-- `src/app/api/proxy/route.ts`: proxy que usa el playground para evitar CORS.
-- `src/app/(home)/{home,dashboard,api-store}/`: vistas, hooks y `_components/` de cada página, junto a su `page.tsx`.
-- `content/docs/`: páginas MDX de la documentación; el orden, los separadores y el link externo
-  de la barra lateral están en `content/docs/meta.json`. Los componentes MDX disponibles se
-  registran en `src/components/mdx.tsx`.
+1. Crear `content/docs/mi-pagina.mdx` con frontmatter:
 
-Los archivos de `apis/` son copias byte a byte de los del sandbox. No se editan; si cambian, se
-reemplaza el archivo completo.
+   ```mdx
+   ---
+   title: Mi página
+   description: Descripción corta.
+   sidebarTitle: Mi página # opcional, si el título es largo
+   ---
+   ```
+
+2. Agregar `"mi-pagina"` a `pages` en `content/docs/meta.json`, en el lugar donde debe aparecer
+   (ahí también van los separadores `"---Título---"` y los links `"[Texto](https://...)"`).
 
 ## Cómo agregar una API
 
@@ -126,3 +251,14 @@ reemplaza el archivo completo.
 La ruta `/api-store/orders` redirige automáticamente a la primera página de la API. Para una
 API con versiones, se sigue el ejemplo de `content/api-store/blog/`: una carpeta por versión, todas
 con el id de la API como `root` (en Blog, `"blog"`).
+
+Los archivos de `apis/` son copias byte a byte de los del sandbox. No se editan; si cambian, se
+reemplaza el archivo completo.
+
+## Limitaciones conocidas
+
+- El proxy del playground (`/api/proxy`) acepta cualquier host público; para producción
+  convendría limitarlo con `allowedOrigins`.
+- El sitio necesita un servidor Node (route handlers y redirecciones). Un hosting solo estático,
+  como GitHub Pages, requiere exportarlo (`output: 'export'`) y prescindir del proxy.
+- El resto de las diferencias con Zudoku están en [`NOTES.md`](NOTES.md#qué-falta-respecto-de-zudoku).
