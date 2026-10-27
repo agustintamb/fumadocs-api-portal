@@ -274,6 +274,23 @@ estar clonado en la misma carpeta que este y compilado con `dotnet build`; si no
 spec, el script falla con un mensaje). Tampoco se edita a mano. Esta API se registra sin
 `proxyUrl` (ver [`NOTES.md`](NOTES.md#funciones-del-playground)).
 
+### URL de la Portal API por ambiente
+
+La spec trae dos servers ("Producción" y "Local"), pero cada ambiente del portal muestra en el
+playground la URL de la API que le corresponde. `src/lib/openapi.ts` la lee de la variable
+`PORTAL_API_URL` al momento del build (o al arrancar `npm run dev`) y reemplaza los `servers`
+de la spec con `selectServers` (`src/utils/select-servers.ts`):
+
+| Ambiente                     | `PORTAL_API_URL`                              | Servers en el playground                      |
+| ---------------------------- | --------------------------------------------- | --------------------------------------------- |
+| Local (`dev`, `build/start`) | Opcional; por defecto `http://localhost:5080` | Esa URL primero y después el resto de la spec |
+| GitHub Pages (`build:pages`) | Obligatoria; el workflow usa la URL de Render | Solo esa URL                                  |
+
+Para apuntar el portal local a otra API, se define en `.env.local` (ignorado por git), por
+ejemplo `PORTAL_API_URL=https://devportal-api.onrender.com`. Un ambiente nuevo (staging, etc.)
+solo necesita su propia `PORTAL_API_URL`; la descripción del server se toma de la spec si la URL
+figura ahí.
+
 ## Build estático para GitHub Pages
 
 `npm run build:pages` genera una versión estática del portal en `out/` (ignorada por git), para
@@ -293,9 +310,10 @@ El script (`scripts/build-pages.mjs`, multiplataforma):
    el build.
 
 Con `STATIC_EXPORT=1`, `next.config.mjs` activa `output: 'export'`, `basePath`, `assetPrefix` y
-`trailingSlash: true`, y `src/lib/openapi.ts` registra las APIs sin `proxyUrl` y le quita a la
-Portal API el server "Local" (`localhost`), que en el sitio publicado apuntaría a la máquina de
-quien lo visita. La búsqueda usa
+`trailingSlash: true`, y `src/lib/openapi.ts` registra las APIs sin `proxyUrl` y deja en la
+Portal API solo el server de `PORTAL_API_URL`, que es obligatoria: sin ella el script corta antes
+de compilar (ver [URL de la Portal API por ambiente](#url-de-la-portal-api-por-ambiente)). La
+búsqueda usa
 el mismo índice estático en ambos modos (`staticGET` en `/api/search` y `type: 'static'` en el
 `RootProvider`, con el `basePath` explícito). Las redirecciones (`/`, `/introduction` y las
 carpetas como `/docs`) son páginas con `<meta http-equiv="refresh">`, además del redirect por JS.
@@ -318,7 +336,8 @@ Limitaciones del sitio estático:
 ### Publicación
 
 El sitio está publicado en <https://agustintamb.github.io/fumadocs-api-portal/>. El workflow
-`.github/workflows/pages.yml` corre `npm ci` y `npm run build:pages` en cada push a `master` y
+`.github/workflows/pages.yml` corre `npm ci` y `npm run build:pages` (con
+`PORTAL_API_URL=https://devportal-api.onrender.com`) en cada push a `master` y
 publica `out/` en GitHub Pages (fuente: GitHub Actions). Para redeployar sin cambios de código:
 `gh workflow run pages.yml` o "Run workflow" en la pestaña Actions.
 

@@ -1,11 +1,17 @@
 import { readFile } from 'node:fs/promises'
 import { createOpenAPI } from 'fumadocs-openapi/server'
-import { withoutLocalServers } from '@/utils/without-local-servers'
+import { selectServers } from '@/utils/select-servers'
 
 // The static export (GitHub Pages) has no server, so the proxy route doesn't exist there.
 const IS_STATIC_EXPORT = process.env.STATIC_EXPORT === '1'
 const PROXY_URL = IS_STATIC_EXPORT ? undefined : '/api/proxy'
 const PORTAL_SPEC = './apis/portal-api.json'
+
+// Each deployed environment shows the Portal API url it talks to. Locally it defaults to the API
+// running on this machine and keeps the spec's other servers (Producción) as alternatives.
+const PORTAL_API_URL =
+  process.env.PORTAL_API_URL ?? (IS_STATIC_EXPORT ? undefined : 'http://localhost:5080')
+if (!PORTAL_API_URL) throw new Error('PORTAL_API_URL is required for the static export')
 
 export const petstore = createOpenAPI({
   proxyUrl: PROXY_URL,
@@ -24,12 +30,11 @@ export const auth = createOpenAPI({
   input: ['./apis/auth-api.yaml'],
 })
 // No proxy: the proxy rejects private hosts such as localhost, and this API already allows CORS.
-// The published site drops the "Local" server: it would point to the visitor's own machine.
 export const portalApi = createOpenAPI({
-  input: IS_STATIC_EXPORT
-    ? {
-        [PORTAL_SPEC]: async () =>
-          withoutLocalServers(JSON.parse(await readFile(PORTAL_SPEC, 'utf8'))),
-      }
-    : [PORTAL_SPEC],
+  input: {
+    [PORTAL_SPEC]: async () =>
+      selectServers(JSON.parse(await readFile(PORTAL_SPEC, 'utf8')), PORTAL_API_URL, {
+        keepOthers: !IS_STATIC_EXPORT,
+      }),
+  },
 })

@@ -13,6 +13,13 @@ const parkedDir = path.join(root, 'node_modules', '.cache', 'build-pages', 'prox
 const nextBin = path.join(root, 'node_modules', 'next', 'dist', 'bin', 'next')
 const basePath = process.env.PAGES_BASE_PATH ?? '/fumadocs-api-portal'
 
+if (!process.env.PORTAL_API_URL) {
+  console.error(
+    'Falta PORTAL_API_URL: la URL de la Portal API para este ambiente (por ejemplo https://devportal-api.onrender.com).',
+  )
+  process.exit(1)
+}
+
 // A previous run killed mid-build may have left the folder parked.
 // If the folder was also restored from git, the tracked copy wins.
 if (existsSync(parkedDir)) {
