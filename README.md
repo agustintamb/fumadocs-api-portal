@@ -69,6 +69,18 @@ con la variable `SCREENSHOTS=1`:
 $env:SCREENSHOTS = '1'; npx playwright test e2e/screenshots.spec.ts
 ```
 
+La prueba conjunta con la Portal API (`e2e/portal-api.spec.ts`) también queda fuera del smoke
+test y se activa con `PORTAL_API=1`. Recorre el playground: pide un token con el usuario demo,
+consulta `GET /dashboard/stats` autorizado y crea y cancela una suscripción. Contra el build
+local usa la API en `http://localhost:5080` (levantada con `dotnet run` en `devportal-api`);
+con `BASE_URL` corre contra un portal ya desplegado, sin levantar servidor, y usa la API de
+Render:
+
+```powershell
+$env:PORTAL_API = '1'; npm run test:e2e -- e2e/portal-api.spec.ts
+$env:BASE_URL = 'https://agustintamb.github.io/fumadocs-api-portal/'; $env:PORTAL_API = '1'; npx playwright test e2e/portal-api.spec.ts
+```
+
 ## Cómo funciona
 
 ### Next.js como base
@@ -152,7 +164,7 @@ src/
   utils/                    Funciones puras (con tests al lado)
   data/                     Datos de ejemplo (catálogo, dashboard, clientes, footer)
   i18n/es.ts                Textos propios de la interfaz
-e2e/                        Smoke test y capturas (Playwright)
+e2e/                        Smoke test, capturas y prueba con la Portal API (Playwright)
 scripts/                    sync-spec.mjs (spec:sync) y build-pages.mjs (build:pages)
 public/clients/             Logos SVG del carrusel de clientes (de simpleicons, CC0)
 docs/screenshots/           Capturas referenciadas desde NOTES.md

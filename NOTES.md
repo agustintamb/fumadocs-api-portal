@@ -106,6 +106,38 @@ token; `GET /dashboard/stats` responde 200.
   funciona (carga la página completa). En Linux, donde corre el deploy, los nombres salen bien.
 - `out/` está en `.gitignore`; después de `build:pages`, `git status` queda limpio.
 
+## Prueba conjunta con la Portal API
+
+`e2e/portal-api.spec.ts` (con `PORTAL_API=1`, ver el README) recorre el playground como lo haría
+una persona: despierta la API (`GET /health`, hasta 90 s por el arranque en frío de Render,
+porque el playground corta cada solicitud a los 10 s), pide un token con `demo` / `demo1234`,
+autoriza `GET /dashboard/stats` y ve el 200 con
+"Solicitudes totales", y crea (`POST /subscriptions`, 201) y cancela (`DELETE`, 204) una
+suscripción a Petstore. Antes borra por API una suscripción a Petstore que pudiera haber
+quedado de una corrida fallida, porque crearla de nuevo daría 409. Las rutas son relativas
+(`api-store/portal/...`) para que funcionen bajo `/fumadocs-api-portal/`, y la prueba verifica
+que el servidor preseleccionado sea el del entorno: "Local" (`http://localhost:5080`) en el
+build local y "Producción" (`https://devportal-api.onrender.com`) en Pages.
+
+Resultado del 27/10/2026: en verde contra el build local con la API en `localhost:5080` y contra
+GitHub Pages con la API en Render.
+
+### Checklist manual
+
+Hecho con scripts de Playwright (Chromium headless) contra Pages y contra el build local en el
+puerto 3100.
+
+| Ítem                                     | Resultado | Cómo se verificó                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Búsqueda en Pages                        | ✅        | Con el botón "Buscar" del header, "token" devuelve 21 resultados; al elegir "Token operations" navega a `/fumadocs-api-portal/api-store/auth/tokens/`. Igual en local.                                                                                                                                                                                                                                                                                                                                                  |
+| Ctrl+K en `/home`                        | ✅        | Abre el diálogo de búsqueda en Pages y en local. En Playwright hay que mandar `Control+k`: con `Control+K` el evento llega con `key: 'K'` y Fumadocs compara `e.key === 'k'`, por eso una prueba anterior no lo abría. Con Bloq Mayús activado pasaría lo mismo con el teclado real (detalle de la librería).                                                                                                                                                                                                           |
+| Cambio de versión del Blog               | ✅        | En `/api-store/blog/v2/comments` el selector muestra 2.0.0; al elegir 1.0.0 navega a `/fumadocs-api-portal/api-store/blog/v1/comments/` (y a `/api-store/blog/v1/comments` en local).                                                                                                                                                                                                                                                                                                                                   |
+| Tema                                     | ✅        | "Cambiar tema" alterna entre claro y oscuro (clase `dark` en `<html>` y `theme` en `localStorage`) y la elección se mantiene al recargar. Pages y local.                                                                                                                                                                                                                                                                                                                                                                |
+| Mobile (390 × 844)                       | ✅        | En `/api-store/portal/dashboard` el artículo ocupa el ancho (390 px, sin scroll horizontal); "Abrir barra lateral" muestra el árbol y navega a Suscripciones; el playground abre a pantalla completa con las pestañas "Solicitud" y "Respuesta". La URL del servidor queda recortada (`https:/…`), pero el selector funciona. Pages y local.                                                                                                                                                                            |
+| 404                                      | ✅        | `/fumadocs-api-portal/no-existe` responde 404 con la página propia y el header; el logo lleva a `/fumadocs-api-portal/home/`. En local, 404 con el header y el logo a `/home`.                                                                                                                                                                                                                                                                                                                                          |
+| URLs profundas y de carpeta en Pages     | ✅        | Desde una pestaña nueva, `/api-store/blog/v2/` termina en `/api-store/blog/v2/posts/` y `/docs/` en `/docs/introduction/`; `/api-store/portal/dashboard` carga directo.                                                                                                                                                                                                                                                                                                                                                 |
+| Cold start de Render desde el playground | ⚠️        | Tras 16 min sin tráfico, `GET /health` desde el playground de Pages falla a los 10 s con "La solicitud falló · Client side error: [TimeoutError] signal timed out" y la sugerencia de revisar CORS o usar un proxy, que no es la causa. Al repetir con la API ya despierta responde 200 en ~1 s. El corte es el `requestTimeout` por defecto del playground de fumadocs-openapi (10 s); con una respuesta simulada de 8 s llega el 200 y con una de 20 s falla a los 10 s. Mientras espera, "Enviar" no se deshabilita. |
+
 ## Qué costó
 
 - **Traducciones completas**: entre fumadocs-ui y fumadocs-openapi hay más de 200 claves y algunas solo se ven
