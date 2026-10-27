@@ -1,5 +1,5 @@
 {
-  "name": "fumadocs-portal",
+  "name": "fumadocs-api-portal",
   "version": "0.0.51",
   "private": true,
   "scripts": {
