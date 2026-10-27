@@ -157,6 +157,9 @@ ya no existen y las de la Portal API pasaron a `/api-store/portal/v1/…` y `/ap
 | URLs profundas y de carpeta en Pages          | ✅        | Desde una pestaña nueva, `/api-store/blog/v2/` (Blog, API ya eliminada) termina en `/api-store/blog/v2/posts/` y `/docs/` en `/docs/introduction/`; `/api-store/portal/dashboard` carga directo.                                                                                                                                                                                                                                                                                                                        |
 | Cold start de Render desde el playground      | ⚠️        | Tras 16 min sin tráfico, `GET /health` desde el playground de Pages falla a los 10 s con "La solicitud falló · Client side error: [TimeoutError] signal timed out" y la sugerencia de revisar CORS o usar un proxy, que no es la causa. Al repetir con la API ya despierta responde 200 en ~1 s. El corte es el `requestTimeout` por defecto del playground de fumadocs-openapi (10 s); con una respuesta simulada de 8 s llega el 200 y con una de 20 s falla a los 10 s. Mientras espera, "Enviar" no se deshabilita. |
 
+Después de este registro, el playground pasó a esperar hasta 90 s (`requestTimeout: 90` en
+`src/components/OpenApiPage/index.tsx`), suficiente para el arranque en frío de Render.
+
 ## Qué costó
 
 - **Traducciones completas**: entre fumadocs-ui y fumadocs-openapi hay más de 200 claves y algunas solo se ven

@@ -118,7 +118,8 @@ Build de producción en `:3100` y verificación con Playwright headless.
   playground muestra "La solicitud falló · Client side error: [TimeoutError] signal timed out" más
   una pista sobre CORS/proxy que confunde.
 - **Se puede subir** desde `createOpenAPIPage` (no desde `createOpenAPI`): `use-playground.js:146`
-  pasa `fetchOptions` al fetcher. Valor en segundos; `false` lo desactiva.
+  pasa `fetchOptions` al fetcher. Valor en segundos; `false` lo desactiva. **Aplicado**: el portal
+  usa 90 s para todas las APIs (`src/components/OpenApiPage/index.tsx`).
 
 ```tsx
 export const OpenApiPage = createOpenAPIPage({
