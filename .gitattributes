@@ -1,5 +1,3 @@
 * text=auto eol=lf
 *.png binary
 apis/** -text
-public/banner.svg -text
-public/banner-dark.svg -text

@@ -120,8 +120,8 @@ desde localhost) y acepta cualquier host público; para producción convendría 
 - **Títulos cortos en la barra lateral**: Fumadocs no tiene un campo para eso. Se agregó
   `sidebarTitle` al frontmatter (con `zod`) y un plugin del loader que lo aplica.
 - **Specs byte a byte**: con `core.autocrlf=true` en Windows, Git convertía los finales de línea.
-  `.gitattributes` marca `apis/**` y los SVG del banner del sandbox como `-text` para que queden
-  idénticos al original; el resto del repo usa LF.
+  `.gitattributes` marca `apis/**` como `-text` para que queden idénticos al original; el resto del
+  repo usa LF.
 - **Detectar páginas de OpenAPI**: las páginas generadas se distinguen de las MDX con
   `'getOpenAPIPageProps' in data`.
 
