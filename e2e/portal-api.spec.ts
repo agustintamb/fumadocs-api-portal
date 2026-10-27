@@ -33,7 +33,10 @@ const authorize = (dialog: Locator, token: string) =>
 const send = async (dialog: Locator, status: number) => {
   await dialog.getByRole('button', { name: /^Enviar/ }).click()
   // "200 OK"; the lookahead skips the timing line next to it ("200 ms · 287 B").
-  await expect(dialog.getByText(new RegExp(`^${status} (?!ms)`))).toBeVisible()
+  // Longer than the playground's own 10 s request timeout, so a slow Render answer still counts.
+  await expect(dialog.getByText(new RegExp(`^${status} (?!ms)`))).toBeVisible({
+    timeout: 15_000,
+  })
 }
 
 const responseBody = async (dialog: Locator) =>
@@ -47,14 +50,18 @@ const responseBody = async (dialog: Locator) =>
 // A failed run may leave the subscription behind, and creating it again would answer 409.
 const removeLeftoverSubscription = async (request: APIRequestContext) => {
   const tokenResponse = await request.post(`${API_URL}/auth/token`, { data: DEMO_USER })
+  expect(tokenResponse.ok()).toBe(true)
   const headers = { Authorization: `Bearer ${(await tokenResponse.json()).accessToken}` }
-  const subscriptions = await (
-    await request.get(`${API_URL}/subscriptions`, { headers })
-  ).json()
+  const listResponse = await request.get(`${API_URL}/subscriptions`, { headers })
+  expect(listResponse.ok()).toBe(true)
+  const subscriptions = await listResponse.json()
   for (const { id, apiId } of subscriptions)
     if (apiId === API_ID)
       await request.delete(`${API_URL}/subscriptions/${id}`, { headers })
 }
+
+// Don't leave the shared demo user subscribed if a step fails halfway.
+test.afterEach(async ({ request }) => removeLeftoverSubscription(request))
 
 test('playground flow against the portal api', async ({ page, request }) => {
   test.setTimeout(180_000)

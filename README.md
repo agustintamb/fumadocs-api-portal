@@ -79,6 +79,7 @@ Render:
 ```powershell
 $env:PORTAL_API = '1'; npm run test:e2e -- e2e/portal-api.spec.ts
 $env:BASE_URL = 'https://agustintamb.github.io/fumadocs-api-portal/'; $env:PORTAL_API = '1'; npx playwright test e2e/portal-api.spec.ts
+Remove-Item Env:BASE_URL, Env:PORTAL_API  # si no, el smoke test siguiente apunta a Pages
 ```
 
 ## Cómo funciona
