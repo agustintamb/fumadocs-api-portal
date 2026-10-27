@@ -14,7 +14,11 @@ const nextBin = path.join(root, 'node_modules', 'next', 'dist', 'bin', 'next')
 const basePath = process.env.PAGES_BASE_PATH ?? '/fumadocs-api-portal'
 
 // A previous run killed mid-build may have left the folder parked.
-if (!existsSync(proxyDir) && existsSync(parkedDir)) await rename(parkedDir, proxyDir)
+// If the folder was also restored from git, the tracked copy wins.
+if (existsSync(parkedDir)) {
+  if (existsSync(proxyDir)) await rm(parkedDir, { recursive: true, force: true })
+  else await rename(parkedDir, proxyDir)
+}
 
 // Ctrl+C reaches `next build` too; ignoring it here lets `finally` restore the folder.
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => {})

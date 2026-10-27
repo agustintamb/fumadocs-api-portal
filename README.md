@@ -288,6 +288,8 @@ El script (`scripts/build-pages.mjs`, multiplataforma):
    `PAGES_BASE_PATH` antes de correrlo).
 3. Restaura la carpeta del proxy siempre, aunque el build falle o se corte con Ctrl+C. Si una
    corrida anterior quedó a medias, la siguiente la restaura al empezar.
+   No conviene correrlo con `npm run dev` abierto: el dev server pierde la ruta del proxy mientras dura
+   el build.
 
 Con `STATIC_EXPORT=1`, `next.config.mjs` activa `output: 'export'`, `basePath`, `assetPrefix` y
 `trailingSlash: true`, y `src/lib/openapi.ts` registra las APIs sin `proxyUrl`. La búsqueda usa
