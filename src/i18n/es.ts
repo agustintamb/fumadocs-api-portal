@@ -88,4 +88,9 @@ export const es = {
   docs: {
     loading: 'Cargando página…',
   },
+  lab: {
+    title: 'Lab — playground experimental',
+    description:
+      'Copia local del playground para experimentar. No es la versión oficial.',
+  },
 } as const

@@ -38,7 +38,10 @@ Además:
 - **CLI**: `npx @fumadocs/cli add openapi/playground` (también `openapi/page`, `openapi/operation`,
   `api-docs/schema`) copia el componente al repo para editarlo; se conecta con
   `playground.render: () => <PlaygroundClient />`. `npx @fumadocs/cli customise` (con "s") es
-  para los layouts de fumadocs-ui, no para OpenAPI. No se usó en la PoC.
+  para los layouts de fumadocs-ui, no para OpenAPI.
+- **Lab**: copia del playground (CLI, sin cambios) en `src/lab/components/openapi/playground`,
+  usada solo por la ruta oculta `/lab/portal/v1/...` y `/lab/portal/v2/...` (`src/app/(lab)`).
+  Se quita borrando `src/app/(lab)` y `src/lab`.
 
 ## Qué se puede hacer por zona
 

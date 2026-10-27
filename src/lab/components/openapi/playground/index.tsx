@@ -1,0 +1,242 @@
+'use client'
+import { type ComponentProps, type FC, type ReactNode, useMemo, useState } from 'react'
+import { Dialog } from '@base-ui/react/dialog'
+import { X } from 'lucide-react'
+import { useOnChange } from 'fumadocs-core/utils/use-on-change'
+import { useOpenAPI } from 'fumadocs-openapi'
+import { useExampleRequests, useOperation } from 'fumadocs-openapi/operation'
+import {
+  DefaultResultDisplay,
+  type ResultDisplayProps,
+} from './components/result-display'
+import { EndpointBar } from '../components/endpoint'
+import { Markdown } from '../components/markdown'
+import { DialogPopup, PlaygroundTrigger } from '../../api/ui/dialog'
+import { cn } from '../../../lib/cn'
+import { SchemaProvider } from '../../api/ui/playground/schema'
+import {
+  iconButtonClassName,
+  RequestExampleSelect,
+  ViewSwitch,
+} from '../../api/ui/playground/panels'
+import { type FieldKey, StfProvider, useFieldValue } from '@fumari/stf'
+import type { ParameterObject } from 'fumadocs-openapi'
+import { useTranslations } from '@fuma-translate/react'
+import {
+  type Playground,
+  type PlaygroundOptions,
+  type RequestBodyInfo,
+  usePlayground,
+} from 'fumadocs-openapi/playground'
+import { UrlBar } from './components/url-bar'
+import { builtinAuthProviders } from './components/auth'
+import { RequestPanel } from './components/request-panel'
+import { ResponsePanel } from './components/response-panel'
+
+export interface PlaygroundClientProps
+  extends ComponentProps<'div'>, PlaygroundClientOptions {
+  /** @deprecated it defaults to `true` for requests */
+  writeOnly?: boolean
+  /** @deprecated it defaults to `false` for requests */
+  readOnly?: boolean
+}
+
+/** @deprecated use `usePlayground().stf` for the form */
+export interface FormValues extends Record<string, unknown> {
+  path: Record<string, unknown>
+  query: Record<string, unknown>
+  header: Record<string, unknown>
+  cookie: Record<string, unknown>
+  body: unknown
+}
+
+export type { ResultDisplayProps }
+export { DefaultResultDisplay }
+
+export interface PlaygroundClientOptions extends PlaygroundOptions {
+  components?: {
+    ResultDisplay?: FC<ResultDisplayProps>
+  }
+
+  /**
+   * render the parameter inputs of API endpoint, return `undefined` to keep the default input of a parameter.
+   *
+   * for updating values, use:
+   * - the `Custom.useController()` from `fumadocs-openapi/ui/playground/client`.
+   *
+   * Recommended types packages: `json-schema-typed`.
+   */
+  renderParameterField?: (fieldName: FieldKey, param: ParameterObject) => ReactNode
+
+  /**
+   * render the input for API endpoint body.
+   *
+   * @see renderParameterField for customization tips
+   */
+  renderBodyField?: (fieldName: 'body', info: RequestBodyInfo) => ReactNode
+}
+
+export default function PlaygroundClient({
+  writeOnly = true,
+  readOnly = false,
+  authProviders,
+  transformAuthInputs,
+  fetchOptions,
+  components,
+  renderParameterField,
+  renderBodyField,
+  ...rest
+}: PlaygroundClientProps) {
+  const { doc } = useOpenAPI()
+  const { path, method, operation } = useOperation()
+  const providers = useMemo(
+    () => [...(authProviders ?? []), ...builtinAuthProviders],
+    [authProviders],
+  )
+  const playground = usePlayground({
+    authProviders: providers,
+    transformAuthInputs,
+    fetchOptions,
+  })
+  // client-rendered pages read the returned flow on the first render
+  const [open, setOpen] = useState(playground.auth.flowReturned)
+
+  useOnChange(playground.auth.flowReturned, (returned) => {
+    if (returned) setOpen(true)
+  })
+
+  return (
+    <StfProvider value={playground.stf}>
+      <SchemaProvider
+        docRoot={doc.dereferenced as never}
+        writeOnly={writeOnly}
+        readOnly={readOnly}
+        Markdown={Markdown}
+      >
+        <Dialog.Root open={open} onOpenChange={setOpen}>
+          <EndpointBar
+            method={method}
+            route={path}
+            deprecated={operation.deprecated}
+            {...rest}
+          >
+            <PlaygroundTrigger />
+          </EndpointBar>
+          <DialogPopup className="sm:h-[min(52rem,calc(100dvh-3rem))] sm:w-[min(80rem,calc(100vw-3rem))]">
+            <PlaygroundDialog
+              playground={playground}
+              renderParameterField={renderParameterField}
+              renderBodyField={renderBodyField}
+              ResultDisplay={components?.ResultDisplay}
+            />
+          </DialogPopup>
+        </Dialog.Root>
+      </SchemaProvider>
+    </StfProvider>
+  )
+}
+
+function PlaygroundDialog({
+  playground,
+  renderParameterField,
+  renderBodyField,
+  ResultDisplay,
+}: Pick<PlaygroundClientOptions, 'renderParameterField' | 'renderBodyField'> & {
+  playground: Playground
+  ResultDisplay?: FC<ResultDisplayProps>
+}) {
+  const t = useTranslations({ note: 'playground' })
+  const { title, method, path, operation, parameters } = useOperation()
+  const { response, isSending, send, clearResponse } = playground
+  const [view, setView] = useState('request')
+  const views = useMemo(
+    () => [
+      { value: 'request', label: t('Request') },
+      { value: 'response', label: t('Response') },
+    ],
+    [t],
+  )
+  const onSubmit = (e: { preventDefault: () => void }) => {
+    e.preventDefault()
+    void send()
+    setView('response')
+  }
+
+  return (
+    <div
+      className="flex min-h-0 flex-1 flex-col"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) onSubmit(e)
+      }}
+    >
+      <div className="flex h-12 shrink-0 items-center gap-2 ps-4 pe-2 sm:ps-5">
+        <Dialog.Title className="truncate text-sm font-medium">{title}</Dialog.Title>
+        {operation.deprecated && (
+          <span className="rounded-md bg-amber-500/10 px-1.5 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+            {t('Deprecated')}
+          </span>
+        )}
+        <div className="ms-auto flex items-center gap-1">
+          <ExampleSelect />
+          <Dialog.Close aria-label={t('Close')} className={iconButtonClassName}>
+            <X />
+          </Dialog.Close>
+        </div>
+      </div>
+      <form noValidate className="shrink-0 px-3 pb-3 sm:px-4" onSubmit={onSubmit}>
+        <UrlBar
+          method={method}
+          route={path}
+          parameters={parameters.find((group) => group.in === 'path')?.items ?? []}
+          deprecated={operation.deprecated}
+          loading={isSending}
+        />
+      </form>
+      <ViewSwitch value={view} onValueChange={setView} items={views} />
+      <div className="bg-fd-card mx-3 mb-3 grid min-h-0 flex-1 overflow-hidden rounded-xl border sm:mx-4 sm:mb-4 md:grid-cols-[minmax(0,11fr)_minmax(0,9fr)]">
+        <RequestPanel
+          playground={playground}
+          onSubmit={onSubmit}
+          renderParameterField={renderParameterField}
+          renderBodyField={renderBodyField}
+          className={cn(view !== 'request' && 'max-md:hidden')}
+        />
+        <ResponsePanel
+          response={response}
+          loading={isSending}
+          onReset={clearResponse}
+          ResultDisplay={ResultDisplay}
+          className={cn('md:border-s', view !== 'response' && 'max-md:hidden')}
+        />
+      </div>
+    </div>
+  )
+}
+
+function ExampleSelect() {
+  const { items, selected, select } = useExampleRequests()
+  const options = items.map((item) => ({ value: item.id, label: item.name }))
+
+  return (
+    <RequestExampleSelect
+      items={options}
+      value={selected ?? null}
+      onValueChange={select}
+    />
+  )
+}
+
+export const Custom = {
+  useController(
+    fieldName: FieldKey,
+    options?: {
+      defaultValue?: unknown
+    },
+  ) {
+    const [value, setValue] = useFieldValue(fieldName, options)
+    return {
+      value,
+      setValue,
+    }
+  },
+}

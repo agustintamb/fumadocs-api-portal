@@ -1,0 +1,184 @@
+import { Select as SelectPrimitive } from '@base-ui/react/select'
+import { Check, ChevronDown } from 'lucide-react'
+import * as React from 'react'
+import { cn } from '../../lib/cn'
+
+const Select = SelectPrimitive.Root
+
+const SelectGroup = SelectPrimitive.Group
+
+const SelectValue = SelectPrimitive.Value
+
+function SelectTrigger({
+  className,
+  children,
+  ref,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Trigger>) {
+  return (
+    <SelectPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        'text-fd-secondary-foreground bg-fd-secondary hover:bg-fd-accent focus:ring-fd-ring data-placeholder:text-fd-muted-foreground flex w-full items-center gap-2 rounded-md border p-2 text-start text-sm focus:ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <SelectPrimitive.Icon className="text-fd-muted-foreground ms-auto shrink-0">
+        <ChevronDown className="size-3.5" />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+  )
+}
+
+// edge fades shown while the list can scroll, they scroll it on hover
+// (`null` children replace the default arrow glyphs)
+const scrollArrowClassName = 'inset-x-0 z-10 h-6 from-fd-popover to-transparent'
+
+function SelectScrollUpButton({
+  className,
+  ref,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.ScrollUpArrow>) {
+  return (
+    <SelectPrimitive.ScrollUpArrow
+      ref={ref}
+      className={cn(scrollArrowClassName, 'top-0 bg-linear-to-b', className)}
+      {...props}
+    >
+      {null}
+    </SelectPrimitive.ScrollUpArrow>
+  )
+}
+
+function SelectScrollDownButton({
+  className,
+  ref,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.ScrollDownArrow>) {
+  return (
+    <SelectPrimitive.ScrollDownArrow
+      ref={ref}
+      className={cn(scrollArrowClassName, 'bottom-0 bg-linear-to-t', className)}
+      {...props}
+    >
+      {null}
+    </SelectPrimitive.ScrollDownArrow>
+  )
+}
+
+function SelectContent({
+  className,
+  children,
+  align = 'start',
+  side = 'bottom',
+  sideOffset = 4,
+  ref,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Popup> &
+  Pick<
+    React.ComponentProps<typeof SelectPrimitive.Positioner>,
+    'align' | 'side' | 'sideOffset'
+  >) {
+  return (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Positioner
+        align={align}
+        side={side}
+        sideOffset={sideOffset}
+        className="z-50"
+      >
+        <SelectPrimitive.Popup
+          ref={ref}
+          className={cn(
+            'bg-fd-popover text-fd-popover-foreground relative z-50 min-w-[calc(var(--anchor-width)+--spacing(2))] overflow-hidden rounded-lg border shadow-md',
+            className,
+          )}
+          {...props}
+        >
+          <SelectScrollUpButton />
+          <SelectPrimitive.List className="p-1">{children}</SelectPrimitive.List>
+          <SelectScrollDownButton />
+        </SelectPrimitive.Popup>
+      </SelectPrimitive.Positioner>
+    </SelectPrimitive.Portal>
+  )
+}
+
+function SelectLabel({
+  className,
+  ref,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.GroupLabel>) {
+  return (
+    <SelectPrimitive.GroupLabel
+      ref={ref}
+      className={cn('py-1.5 ps-6 pe-2 text-sm font-semibold', className)}
+      {...props}
+    />
+  )
+}
+
+function SelectItem({
+  className,
+  children,
+  description,
+  ref,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Item> & {
+  /** shown under the text, outside of what the trigger aligns with */
+  description?: React.ReactNode
+}) {
+  const text = <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+
+  return (
+    <SelectPrimitive.Item
+      ref={ref}
+      className={cn(
+        'data-[highlighted]:bg-fd-accent data-[highlighted]:text-fd-accent-foreground flex flex-row items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        className,
+      )}
+      {...props}
+    >
+      {description ? (
+        <div className="flex flex-col">
+          {text}
+          {description}
+        </div>
+      ) : (
+        text
+      )}
+      <SelectPrimitive.ItemIndicator className="ms-auto shrink-0">
+        <Check className="text-fd-primary size-3.5" />
+      </SelectPrimitive.ItemIndicator>
+    </SelectPrimitive.Item>
+  )
+}
+
+function SelectSeparator({
+  className,
+  ref,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Separator>) {
+  return (
+    <SelectPrimitive.Separator
+      ref={ref}
+      className={cn('bg-fd-muted my-1 h-px', className)}
+      {...props}
+    />
+  )
+}
+
+export {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+}
