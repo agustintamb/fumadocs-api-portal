@@ -116,9 +116,9 @@ Este proyecto usa cuatro:
 El recorrido de una página es:
 
 ```text
-content/*.mdx ──(fumadocs-mdx)──┐
-                                ├─► loader() + plugins ─► page tree + páginas ─► [...slug]/page.tsx
-apis/*.yaml ──(fumadocs-openapi)┘        (fumadocs-core)                          (fumadocs-ui)
+content/*.mdx ────────(fumadocs-mdx)──┐
+                                      ├─► loader() + plugins ─► page tree + páginas ─► [...slug]/page.tsx
+apis/*.{json,yaml} (fumadocs-openapi)─┘        (fumadocs-core)                          (fumadocs-ui)
 ```
 
 1. `src/lib/source.ts` arma el `loader()` con la colección MDX y una fuente generada por cada
