@@ -170,6 +170,7 @@ e2e/                        Smoke test, capturas y prueba con la Portal API (Pla
 scripts/                    sync-spec.mjs (spec:sync), vendor-specs.mjs (spec:vendor) y build-pages.mjs (build:pages)
 public/clients/             Logos SVG del carrusel de clientes (de simpleicons, CC0)
 docs/screenshots/           Capturas referenciadas desde NOTES.md
+docs/playground-customization.md  Qué se puede personalizar del playground y soporte de autenticación
 ```
 
 ## Rutas
@@ -205,11 +206,15 @@ más bajo que resuelva el caso.
 | **Plugins del loader**      | Transformar el page tree o las páginas (renombrar, agrupar, agregar nodos).                                                                                                        | `src/lib/source.ts` (`sidebar-title`), `src/lib/endpoints-plugin.tsx`                     |
 | **Opciones de OpenAPI**     | Una página por tag, por operación o por archivo; servidores, proxy y orígenes permitidos; render propio de campos del playground (`renderBodyField`) y de partes de la referencia. | `src/lib/openapi.ts`, `src/lib/source.ts` (`staticSource`), `src/components/OpenApiPage/` |
 | **Componentes propios**     | Usar las piezas de Fumadocs (`Popover`, `Collapsible`, `buttonVariants`, `SidebarTabsDropdown`, hooks de contexto) para armar componentes nuevos.                                  | `SiteHeader`, `VersionSelect`, `MethodBadge`                                              |
-| **Copiar el código fuente** | `npx @fumadocs/cli customize` o `add` copian layouts y componentes al repo (como shadcn/ui) para modificarlos libremente. Se pierde la actualización automática de esas piezas.    | No se usó                                                                                 |
+| **Copiar el código fuente** | `npx @fumadocs/cli customise` o `add` copian layouts y componentes al repo (como shadcn/ui) para modificarlos libremente. Se pierde la actualización automática de esas piezas.    | No se usó                                                                                 |
 
 Los componentes de Fumadocs están hechos con Base UI y Tailwind, así que los propios se escriben
 con las mismas clases (`bg-fd-card`, `text-fd-muted-foreground`, etc.) y quedan integrados con el
 tema.
+
+El detalle de qué se puede personalizar del playground (por zona, con fragmentos), el timeout de
+las solicitudes y el soporte de cada esquema de autenticación está en
+[`docs/playground-customization.md`](docs/playground-customization.md).
 
 ### Dónde se configura cada cosa
 

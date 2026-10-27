@@ -221,6 +221,9 @@ ya no existen y las de la Portal API pasaron a `/api-store/portal/v1/…` y `/ap
 
 ## Qué falta respecto de Zudoku
 
+Qué se puede personalizar del playground y qué queda fijo, más el soporte de autenticación, en
+[`docs/playground-customization.md`](docs/playground-customization.md).
+
 - Subida de archivos `binary` en el playground (ver arriba).
 - En la barra lateral no se resalta el endpoint visible al scrollear; solo queda resaltado el
   recurso (la página abierta).
