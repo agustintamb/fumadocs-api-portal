@@ -343,6 +343,9 @@ aviso. Se actualizan solo con `npm run spec:vendor` (`scripts/vendor-specs.mjs`)
   y el script verifica que el resto del documento no cambió). Hoy el proveedor ya trae
   `https://pokeapi.co`, así que el archivo es idéntico al original; si lo sacara, el script lo
   vuelve a agregar antes de `paths`.
+- En `petstore-v3.json` el script también agrega `id` a los `required` del esquema `Pet`: el
+  servidor público responde 500 a `POST /pet` sin `id` y el playground arma el ejemplo solo con
+  las propiedades requeridas.
 - La salida es determinística: correr el script dos veces seguidas no deja cambios.
 
 Para actualizarlas: correr `npm run spec:vendor`, revisar `git diff apis/` (rutas nuevas o

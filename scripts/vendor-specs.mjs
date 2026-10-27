@@ -1,5 +1,5 @@
 // Downloads the third-party specs into `apis/` (run by hand; the result is committed).
-// Only `servers` is changed; Petstore v2 is converted from Swagger 2.0 to OpenAPI 3.
+// Only `servers` is changed (plus `id` required in Petstore v3's Pet); Petstore v2 is converted from Swagger 2.0 to OpenAPI 3.
 import { isDeepStrictEqual } from 'node:util'
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -67,10 +67,20 @@ async function writeJson(name, data) {
   console.log(`Escrito apis/${name}`)
 }
 
+// petstore3.swagger.io answers 500 to POST /pet without `id`. The playground builds the
+// example from the required properties only, so `id` is made required to include it.
+function withRequiredPetId(spec) {
+  const pet = spec.components.schemas.Pet
+  if (!pet.required.includes('id')) pet.required = ['id', ...pet.required]
+  return spec
+}
+
 const petstoreV3 = JSON.parse(await download(sources.petstoreV3))
 await writeJson(
   'petstore-v3.json',
-  withServers(petstoreV3, [{ url: 'https://petstore3.swagger.io/api/v3' }]),
+  withServers(withRequiredPetId(petstoreV3), [
+    { url: 'https://petstore3.swagger.io/api/v3' },
+  ]),
 )
 
 const petstoreV2Swagger = JSON.parse(await download(sources.petstoreV2))

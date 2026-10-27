@@ -1146,6 +1146,7 @@
       },
       "Pet": {
         "required": [
+          "id",
           "name",
           "photoUrls"
         ],
