@@ -249,7 +249,7 @@ tema.
 
 5. Agregar `"orders"` a `pages` en `content/api-store/meta.json`.
 6. Agregar la tarjeta al catálogo en `src/data/apis.ts` (la versión y la cantidad de endpoints
-   se leen del YAML) y, si corresponde, el link del footer en `src/data/footer.ts`.
+   se leen de la spec) y, si corresponde, el link del footer en `src/data/footer.ts`.
 
 La ruta `/api-store/orders` redirige automáticamente a la primera página de la API. Cada página
 toma su URL del nombre del tag en minúsculas, con guiones y sin tildes (`Autenticación` →

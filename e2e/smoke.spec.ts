@@ -235,7 +235,7 @@ test('publishes the portal api in the api store', async ({ page }) => {
   await expect(versionSelect(page)).toBeDisabled()
 
   const sidebar = page.locator('#nd-sidebar')
-  for (const resource of ['Salud', 'Catálogo', 'Dashboard', 'Suscripciones'])
+  for (const resource of ['Salud', 'Catálogo', 'Dashboard', 'Suscripciones', 'Clientes'])
     await expect(sidebar.getByRole('link', { name: resource, exact: true })).toBeVisible()
   await sidebar.getByRole('link', { name: 'Autenticación', exact: true }).click()
   await expect(page).toHaveURL(/\/api-store\/portal\/autenticacion$/)
