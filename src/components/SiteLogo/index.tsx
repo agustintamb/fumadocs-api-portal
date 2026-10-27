@@ -6,7 +6,7 @@ export function SiteLogo() {
     <span
       role="img"
       aria-label={es.site.logoAlt}
-      className="inline-flex items-center gap-2.5 font-semibold"
+      className="mt-2 inline-flex items-center gap-2.5 font-semibold"
     >
       <svg viewBox="0 0 24 24" className="size-6" aria-hidden>
         <defs>
