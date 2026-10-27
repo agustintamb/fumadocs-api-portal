@@ -1,6 +1,9 @@
 import { CLIENTS } from '@/data/clients'
 import { es } from '@/i18n/es'
 
+// Logos live in public/clients (from simpleicons, CC0). Plain <img> doesn't get the basePath.
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
 export interface LogoListProps {
   hidden?: boolean
 }
@@ -14,10 +17,10 @@ function LogoList({ hidden }: LogoListProps) {
     >
       {CLIENTS.map((client) => (
         <li key={client.slug} className="shrink-0">
-          {/* External SVG from simpleicons; next/image would add no value here. */}
+          {/* Small local SVGs; next/image would add no value here. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`https://cdn.simpleicons.org/${client.slug}`}
+            src={`${BASE_PATH}/clients/${client.slug}.svg`}
             alt={hidden ? '' : client.name}
             height={32}
             className="h-8 w-auto opacity-60 grayscale transition hover:opacity-100 hover:grayscale-0 dark:invert"

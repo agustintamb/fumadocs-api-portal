@@ -154,6 +154,7 @@ src/
   i18n/es.ts                Textos propios de la interfaz
 e2e/                        Smoke test y capturas (Playwright)
 scripts/                    sync-spec.mjs (spec:sync) y build-pages.mjs (build:pages)
+public/clients/             Logos SVG del carrusel de clientes (de simpleicons, CC0)
 docs/screenshots/           Capturas referenciadas desde NOTES.md
 ```
 
@@ -292,7 +293,9 @@ El script (`scripts/build-pages.mjs`, multiplataforma):
    el build.
 
 Con `STATIC_EXPORT=1`, `next.config.mjs` activa `output: 'export'`, `basePath`, `assetPrefix` y
-`trailingSlash: true`, y `src/lib/openapi.ts` registra las APIs sin `proxyUrl`. La búsqueda usa
+`trailingSlash: true`, y `src/lib/openapi.ts` registra las APIs sin `proxyUrl` y le quita a la
+Portal API el server "Local" (`localhost`), que en el sitio publicado apuntaría a la máquina de
+quien lo visita. La búsqueda usa
 el mismo índice estático en ambos modos (`staticGET` en `/api/search` y `type: 'static'` en el
 `RootProvider`, con el `basePath` explícito). Las redirecciones (`/`, `/introduction` y las
 carpetas como `/docs`) son páginas con `<meta http-equiv="refresh">`, además del redirect por JS.
