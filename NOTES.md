@@ -271,9 +271,9 @@ Portal API de Render se despertó con `/health` (200) antes de las pruebas del p
 2. **Badges**: OK. En `api-store/` Portal API muestra "Interna" (y "beta"); Petstore y PokeAPI
    muestran "Pública" (ambas "estable"). La página de Portal v2 muestra "Interna" y "beta" junto
    al título.
-3. **Playground Petstore v3, POST /pet sin api_key**: FALLA. Devuelve 500, no 200. El cuerpo de
-   ejemplo que envía el playground es `{"name":"doggie","photoUrls":["string"]}` (sin `id`) y el
-   servidor público petstore3.swagger.io responde 500 también con curl. Con un `id` en el cuerpo
-   responde 200, así que el problema es el ejemplo generado, no el playground. No se corrigió.
+3. **Playground Petstore v3, POST /pet sin api_key**: CORREGIDO (200 OK, verificado en local y en
+   Pages). Antes devolvía 500: el cuerpo de ejemplo era `{"name":"doggie","photoUrls":["string"]}`
+   (sin `id`) y el servidor público petstore3.swagger.io responde 500 sin `id` (con `id`, 200).
+   `scripts/vendor-specs.mjs` ahora agrega `id` a los `required` de `Pet` en la spec vendorizada.
 4. **Playground PokeAPI, GET /api/v2/pokemon/{id} con id=pikachu**: OK, 200 (id 25).
 5. **Playground Portal API v2, GET /v2/apis**: OK, 200 con `items`, `page`, `pageSize` y `total`.
