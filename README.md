@@ -312,6 +312,13 @@ Limitaciones del sitio estático:
 - **Sin redirecciones del servidor**: las redirecciones son páginas HTML (sin código 307).
 - Ver otros detalles en [`NOTES.md`](NOTES.md#build-estático-para-github-pages).
 
+### Publicación
+
+El sitio está publicado en <https://agustintamb.github.io/fumadocs-api-portal/>. El workflow
+`.github/workflows/pages.yml` corre `npm ci` y `npm run build:pages` en cada push a `master` y
+publica `out/` en GitHub Pages (fuente: GitHub Actions). Para redeployar sin cambios de código:
+`gh workflow run pages.yml` o "Run workflow" en la pestaña Actions.
+
 ## Limitaciones conocidas
 
 - El proxy del playground (`/api/proxy`) acepta cualquier host público; para producción
