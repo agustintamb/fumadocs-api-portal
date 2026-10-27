@@ -12,13 +12,14 @@ const apis: ApiCardData[] = API_CATALOG.map((api) => ({
 describe('useApiStorePage', () => {
   it('starts with all apis and the "Todas" chip first', () => {
     const { result } = renderHook(() => useApiStorePage(apis))
-    expect(result.current.filtered).toHaveLength(3)
+    expect(result.current.filtered).toHaveLength(4)
     expect(result.current.filterOptions[0]).toEqual({ value: 'all', label: 'Todas' })
     expect(result.current.filterOptions.map((o) => o.value)).toEqual([
       'all',
       'petstore',
       'blog',
       'auth',
+      'portal',
     ])
   })
 

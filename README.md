@@ -12,8 +12,9 @@ respecto de Zudoku) están en [`NOTES.md`](NOTES.md).
 
 - **Inicio, Dashboard y API Store**: páginas propias en React. El API Store es un catálogo con
   buscador y filtros por API.
-- **Referencia de APIs** generada desde YAML OpenAPI (Petstore, Blog v1/v2, Auth): una página por
-  recurso (tag); en la barra lateral cada recurso lista sus endpoints con el verbo HTTP.
+- **Referencia de APIs** generada desde specs OpenAPI (Petstore, Blog v1/v2, Auth y Portal API):
+  una página por recurso (tag); en la barra lateral cada recurso lista sus endpoints con el verbo
+  HTTP.
 - **Playground** en cada endpoint: completar parámetros, autenticarse (API key, Bearer, OAuth2
   implícito), elegir servidor y enviar la solicitud. También muestra ejemplos en cURL,
   JavaScript, Go, Python, Java, C# y Rust.
@@ -53,6 +54,7 @@ tarda. Para ver la velocidad real: `npm run build && npm start`.
 | `npm run test:e2e`  | Corre el smoke test de Playwright. Hace el build y levanta el servidor en el puerto 3100 si no hay uno corriendo ahí. |
 | `npm run lint`      | Corre ESLint.                                                                                                         |
 | `npm run typecheck` | Genera los tipos de Next (`next typegen`) y corre `tsc --noEmit`.                                                     |
+| `npm run spec:sync` | Copia la spec de la Portal API desde `../devportal-api/openapi/portal-api.json` a `apis/portal-api.json`.             |
 
 Otros scripts: `lint:fix`, `format`, `format:check` y `test:watch`.
 
@@ -119,14 +121,15 @@ apis/*.yaml ──(fumadocs-openapi)┘        (fumadocs-core)                  
   variables `--color-fd-*`).
 - **lucide-react**: íconos (también usables desde `meta.json` y frontmatter con `icon`).
 - **geist**: tipografías Geist Sans y Mono.
-- **yaml**: lee los YAML para el catálogo del API Store (versión y cantidad de endpoints).
+- **yaml**: lee las specs (YAML o JSON) para el catálogo del API Store (versión y cantidad de
+  endpoints).
 - **zod**: esquema del frontmatter (`sidebarTitle`).
 - **Vitest + Testing Library** (unitarios) y **Playwright** (e2e y capturas).
 
 ## Estructura
 
 ```text
-apis/                       Specs OpenAPI (copias byte a byte; no se editan)
+apis/                       Specs OpenAPI (copias byte a byte; no se editan; portal-api.json sale de spec:sync)
 content/
   meta.json                 Raíz del árbol
   docs/                     Documentación MDX + meta.json (orden, separadores, link externo)
@@ -248,12 +251,21 @@ tema.
 6. Agregar la tarjeta al catálogo en `src/data/apis.ts` (la versión y la cantidad de endpoints
    se leen del YAML) y, si corresponde, el link del footer en `src/data/footer.ts`.
 
-La ruta `/api-store/orders` redirige automáticamente a la primera página de la API. Para una
-API con versiones, se sigue el ejemplo de `content/api-store/blog/`: una carpeta por versión, todas
-con el id de la API como `root` (en Blog, `"blog"`).
+La ruta `/api-store/orders` redirige automáticamente a la primera página de la API. Cada página
+toma su URL del nombre del tag en minúsculas, con guiones y sin tildes (`Autenticación` →
+`/api-store/portal/autenticacion`). Para una API con versiones, se sigue el ejemplo de
+`content/api-store/blog/`: una carpeta por versión, todas con el id de la API como `root` (en
+Blog, `"blog"`).
 
 Los archivos de `apis/` son copias byte a byte de los del sandbox. No se editan; si cambian, se
 reemplaza el archivo completo.
+
+La excepción es `apis/portal-api.json`, la spec de la API propia del portal (repo
+`devportal-api`). No viene del sandbox: la genera el build del backend y se actualiza solo con
+`npm run spec:sync`, que la copia desde `../devportal-api/openapi/` (el repo del backend tiene que
+estar clonado en la misma carpeta que este y compilado con `dotnet build`; si no encuentra la
+spec, el script falla con un mensaje). Tampoco se edita a mano. Esta API se registra sin
+`proxyUrl` (ver [`NOTES.md`](NOTES.md#funciones-del-playground)).
 
 ## Limitaciones conocidas
 

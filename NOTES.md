@@ -15,7 +15,9 @@ Versiones: Next.js 16, Fumadocs (core/ui/mdx) 16 y fumadocs-openapi 12.5.5.
   consulta", "Autorización", "Autorizar", "Alcances", "Implícito", "Solicitud de ejemplo",
   "Respuesta de ejemplo", "URL del servidor", "400 Solicitud incorrecta".
 - **Contenido de las especificaciones** (títulos de tags, descripciones de operaciones y campos):
-  queda en inglés a propósito. Los YAML de `apis/` son copias byte a byte de los del sandbox.
+  queda en inglés a propósito. Los YAML de `apis/` son copias byte a byte de los del sandbox. La
+  excepción es la Portal API (`apis/portal-api.json`), cuya spec ya viene en español desde el
+  backend.
 
 Algunas traducciones fueron decisiones de criterio (por ejemplo "Sección" para el disparador de
 pestañas del layout, "Layout Tab" en el original). Están todas en `src/lib/translations.ts` para revisarlas en un solo lugar.
@@ -65,6 +67,15 @@ CORS. El proxy rechaza hosts privados (por eso Petstore, con server relativo, de
 desde localhost) y acepta cualquier host público; para producción convendría limitarlo con
 `allowedOrigins`. La respuesta se muestra en español ("Cuerpo", "Encabezados").
 
+**Portal API sin proxy**: la API propia (`portalApi` en `src/lib/openapi.ts`) se registra sin
+`proxyUrl`, así el playground llama directo desde el navegador. Con el proxy, el servidor "Local"
+(`http://localhost:5080`) no funcionaría porque el proxy rechaza hosts privados; además la API ya
+permite CORS desde el portal (`localhost:3000`, `localhost:3100` y GitHub Pages), y en Pages no
+hay proxy porque el sitio es estático. Verificado con Playwright contra `npm run dev` y la API
+local: con el servidor "Local", `POST /auth/token` con el usuario demo devuelve el token; en la
+sección "Autorización" (esquema `bearerAuth`) el campo viene con `Bearer ` (con el espacio) y se completa con el
+token; `GET /dashboard/stats` responde 200.
+
 ## Qué costó
 
 - **Traducciones completas**: entre fumadocs-ui y fumadocs-openapi hay más de 200 claves y algunas solo se ven
@@ -93,7 +104,7 @@ desde localhost) y acepta cualquier host público; para producción convendría 
   - La página 404 (`not-found.tsx`) usa el mismo header (`HomeHeader`).
 - **Selector de versión**: la barra lateral muestra solo la sección actual (carpetas `root`); a
   Docs y a las APIs se llega desde el navbar. Cada API tiene su propio tipo de `root` en
-  `meta.json` (`"petstore"`, `"auth"`, `"blog"` en v1 y v2), así el desplegable de Fumadocs
+  `meta.json` (`"petstore"`, `"auth"`, `"portal"`, `"blog"` en v1 y v2), así el desplegable de Fumadocs
   (`SidebarTabsDropdown`) agrupa solo las versiones de esa API. Las pestañas salen de
   `getVersionTabs` (`src/utils/get-version-tabs.ts`, una versión de `getLayoutTabs` que
   entiende las carpetas de endpoints) con el `info.version` de cada spec como

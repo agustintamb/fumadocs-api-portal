@@ -24,6 +24,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { label: 'Petstore', href: '/api-store/petstore' },
       { label: 'Blog API', href: '/api-store/blog' },
       { label: 'Auth API', href: '/api-store/auth' },
+      { label: 'Portal API', href: '/api-store/portal' },
     ],
   },
 ]

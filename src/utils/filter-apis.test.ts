@@ -26,6 +26,6 @@ describe('filterApis', () => {
   })
 
   it('returns everything for an empty query and the all chip', () => {
-    expect(filterApis(apis, '', 'all')).toHaveLength(3)
+    expect(filterApis(apis, '', 'all')).toHaveLength(4)
   })
 })

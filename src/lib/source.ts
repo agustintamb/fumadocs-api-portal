@@ -4,8 +4,9 @@ import { defineDocs } from 'fumadocs-mdx/macro'
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema'
 import { z } from 'zod'
 import type { OpenAPIServer } from 'fumadocs-openapi/server'
-import { auth, blogV1, blogV2, petstore } from '@/lib/openapi'
+import { auth, blogV1, blogV2, petstore, portalApi } from '@/lib/openapi'
 import { endpointsPlugin } from '@/lib/endpoints-plugin'
+import { normalizeText } from '@/utils/normalize-text'
 
 const docs = defineDocs({
   dir: 'content',
@@ -18,9 +19,15 @@ const docs = defineDocs({
   },
 })
 
-// One page per tag (like Zudoku), generated in memory from the YAML specs.
+// One page per tag (like Zudoku), generated in memory from the specs. Slugs drop accents so
+// Spanish tags get ASCII URLs ("Autenticación" -> /autenticacion).
 function apiSource(server: OpenAPIServer, baseDir: string) {
-  return server.staticSource({ baseDir, per: 'tag', meta: { folderStyle: 'separator' } })
+  return server.staticSource({
+    baseDir,
+    per: 'tag',
+    slugify: (name) => normalizeText(name).replace(/\s+/g, '-'),
+    meta: { folderStyle: 'separator' },
+  })
 }
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
@@ -31,6 +38,7 @@ export const source = loader(
     blogV1: await apiSource(blogV1, 'api-store/blog/v1/(generated)'),
     blogV2: await apiSource(blogV2, 'api-store/blog/v2/(generated)'),
     auth: await apiSource(auth, 'api-store/auth/(generated)'),
+    portal: await apiSource(portalApi, 'api-store/portal/(generated)'),
   },
   {
     baseUrl: '/',

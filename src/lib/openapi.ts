@@ -18,3 +18,7 @@ export const auth = createOpenAPI({
   proxyUrl: PROXY_URL,
   input: ['./apis/auth-api.yaml'],
 })
+// No proxy: the proxy rejects private hosts such as localhost, and this API already allows CORS.
+export const portalApi = createOpenAPI({
+  input: ['./apis/portal-api.json'],
+})

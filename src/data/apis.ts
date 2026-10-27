@@ -58,4 +58,15 @@ export const API_CATALOG: ApiEntry[] = [
     tags: ['jwt', 'oauth', 'users'],
     specs: [{ label: 'v2.0.0', file: 'auth-api.yaml' }],
   },
+  {
+    id: 'portal',
+    name: 'Portal API',
+    description:
+      'API propia del portal: catálogo de APIs, clientes, métricas del dashboard y suscripciones. Emite tokens JWT con un usuario demo para probar los endpoints privados.',
+    path: '/api-store/portal',
+    status: 'beta',
+    category: 'Plataforma',
+    tags: ['dashboard', 'subscriptions', 'jwt'],
+    specs: [{ label: 'v1.0.0', file: 'portal-api.json' }],
+  },
 ]

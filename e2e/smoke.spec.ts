@@ -222,6 +222,31 @@ test('lists endpoints with their verb in the sidebar', async ({ page }) => {
   await expect(page.locator('h2#place-an-order-for-a-pet')).toBeInViewport()
 })
 
+test('publishes the portal api in the api store', async ({ page }) => {
+  await page.goto('/api-store')
+  await expect(page.getByRole('article')).toHaveCount(4)
+  await expect(page.getByRole('article').filter({ hasText: 'Portal API' })).toContainText(
+    'Plataforma',
+  )
+
+  await page.goto('/api-store/portal')
+  await expect(page).toHaveURL(/\/api-store\/portal\/salud$/)
+  await expect(versionSelect(page)).toHaveText('1.0.0')
+  await expect(versionSelect(page)).toBeDisabled()
+
+  const sidebar = page.locator('#nd-sidebar')
+  for (const resource of ['Salud', 'Catálogo', 'Dashboard', 'Suscripciones'])
+    await expect(sidebar.getByRole('link', { name: resource, exact: true })).toBeVisible()
+  await sidebar.getByRole('link', { name: 'Autenticación', exact: true }).click()
+  await expect(page).toHaveURL(/\/api-store\/portal\/autenticacion$/)
+  await expect(
+    sidebar.getByRole('link', {
+      name: 'Obtener un token de acceso con el usuario demo POST',
+      exact: true,
+    }),
+  ).toBeVisible()
+})
+
 test('petstore playground and auth are in spanish', async ({ page }) => {
   await page.goto('/api-store/petstore/pet')
   await expect(page.getByText('Parámetros de consulta').first()).toBeVisible()
