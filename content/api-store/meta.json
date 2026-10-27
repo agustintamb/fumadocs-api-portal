@@ -1,1 +1,1 @@
-{ "title": "API Store", "pages": ["petstore", "blog", "auth", "portal"] }
+{ "title": "API Store", "pages": ["portal", "petstore", "pokeapi"] }

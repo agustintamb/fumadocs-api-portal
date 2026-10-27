@@ -13,8 +13,8 @@ const PAGES = [
   { name: 'dashboard', path: '/dashboard', fullPage: true },
   { name: 'api-store', path: '/api-store', fullPage: true },
   { name: 'introduction', path: '/docs/introduction', fullPage: false },
-  { name: 'petstore', path: '/api-store/petstore/pet', fullPage: false },
-  { name: 'blog-v2', path: '/api-store/blog/v2/posts', fullPage: false },
+  { name: 'petstore', path: '/api-store/petstore/v3/pet', fullPage: false },
+  { name: 'portal-v2', path: '/api-store/portal/v2/catalogo', fullPage: false },
 ]
 
 const openPlayground = async (page: Page, operationId: string) => {
@@ -47,13 +47,13 @@ test.describe('library gaps', () => {
   test.use({ colorScheme: 'light' })
 
   test('playground auth header', async ({ page }) => {
-    await page.goto('/api-store/petstore/pet')
+    await page.goto('/api-store/petstore/v3/pet')
     const dialog = await openPlayground(page, 'finds-pets-by-status')
     await dialog.screenshot({ path: `${DIR}/gap-playground-auth.png` })
   })
 
   test('oauth fields', async ({ page }) => {
-    await page.goto('/api-store/petstore/pet')
+    await page.goto('/api-store/petstore/v3/pet')
     const dialog = await openPlayground(page, 'finds-pets-by-status')
     await dialog.getByRole('button', { name: /^Autorizar/ }).click()
     await expect(dialog.getByText('Alcances', { exact: true })).toBeVisible()
@@ -61,7 +61,7 @@ test.describe('library gaps', () => {
   })
 
   test('upload image body', async ({ page }) => {
-    await page.goto('/api-store/petstore/pet')
+    await page.goto('/api-store/petstore/v3/pet')
     const dialog = await openPlayground(page, 'uploads-an-image')
     await dialog.screenshot({ path: `${DIR}/gap-upload-image.png` })
   })

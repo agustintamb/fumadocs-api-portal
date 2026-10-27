@@ -5,6 +5,7 @@ import { parse } from 'yaml'
 import { API_CATALOG, type ApiCardData, type ApiEntry } from '@/data/apis'
 import { countOperations } from '@/utils/count-operations'
 
+// `yaml` reads both formats: JSON is valid YAML.
 async function readSpec(file: string): Promise<unknown> {
   const source = await readFile(path.join(process.cwd(), 'apis', file), 'utf8')
   return parse(source)

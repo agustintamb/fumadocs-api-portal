@@ -5,6 +5,20 @@ costó y qué falta respecto del sandbox de Zudoku.
 
 Versiones: Next.js 16, Fumadocs (core/ui/mdx) 16 y fumadocs-openapi 12.5.5.
 
+## Catálogo actual
+
+El API Store publica la **Portal API** (propia, v1 y v2, specs de `npm run spec:sync`), **Petstore**
+(v2 y v3, contra el servidor público de Swagger) y **PokeAPI** (v2.10.0); las dos de terceros son
+specs vendorizadas con `npm run spec:vendor`. Cómo se agrega una API (JSON o YAML, propia o
+vendorizada) está en el [README](README.md#cómo-agregar-una-api).
+
+Ninguna usa el proxy: las tres permiten CORS y el playground las llama directo, también desde
+GitHub Pages. El proxy (`/api/proxy`) sigue disponible en modo servidor como opción para una API
+sin CORS (`proxyUrl` en `src/lib/openapi.ts`).
+
+Hasta el 27/10/2026 el catálogo era el del sandbox de Zudoku (Petstore 1.0.19, Blog v1/v2 y
+Auth). Los hallazgos de esa etapa quedan abajo como registro, marcados "(API ya eliminada)".
+
 ## Qué se tradujo
 
 - **Textos propios** (Inicio, Dashboard, API Store, navegación, footer, página 404): en español,
@@ -15,8 +29,9 @@ Versiones: Next.js 16, Fumadocs (core/ui/mdx) 16 y fumadocs-openapi 12.5.5.
   consulta", "Autorización", "Autorizar", "Alcances", "Implícito", "Solicitud de ejemplo",
   "Respuesta de ejemplo", "URL del servidor", "400 Solicitud incorrecta".
 - **Contenido de las especificaciones** (títulos de tags, descripciones de operaciones y campos):
-  queda en inglés a propósito. Los YAML de `apis/` son copias byte a byte de los del sandbox. La
-  excepción es la Portal API (`apis/portal-api.json`), cuya spec ya viene en español desde el
+  queda en inglés a propósito: las specs de terceros (`apis/petstore-*.json`, `apis/pokeapi.yaml`)
+  son las del proveedor, solo con los `servers` ajustados. La excepción es la Portal API
+  (`apis/portal-api.json` y `apis/portal-api-v2.json`), cuya spec ya viene en español desde el
   backend.
 
 Algunas traducciones fueron decisiones de criterio (por ejemplo "Sección" para el disparador de
@@ -56,18 +71,20 @@ Verificadas a mano con Playwright contra el build de producción.
 | Función                         | Estado | Nota                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | API key                         | ✅     | En Petstore (`getPetById`) el selector ofrece `api_key` y `petstore_auth`. Con `api_key` el valor se manda como header (`-H 'api_key: …'` en el cURL y en los demás lenguajes).                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Bearer                          | ⚠️     | Funciona en Blog (`bearerAuth`): el header queda `Authorization: Bearer <token>`. El campo viene precargado con `Bearer ` y el token hay que agregarlo a continuación; si se borra todo y se pega solo el token, el prefijo se pierde.                                                                                                                                                                                                                                                                                                                                                                 |
+| Bearer                          | ⚠️     | Funciona en Blog (API ya eliminada; `bearerAuth`): el header queda `Authorization: Bearer <token>`. El campo viene precargado con `Bearer ` y el token hay que agregarlo a continuación; si se borra todo y se pega solo el token, el prefijo se pierde.                                                                                                                                                                                                                                                                                                                                               |
 | OAuth2 implícito                | ✅     | Panel en español ("Implícito", "Alcances", "Autorizar"). Redirige a `authorizationUrl` con `response_type=token`, los alcances elegidos y `redirect_uri` a la misma página; al volver con `#access_token=…` el playground se reabre con `Authorization: Bearer <token>`. Probado con un proveedor simulado: el de petstore3 no es real.                                                                                                                                                                                                                                                                |
 | Upload `binary` (`uploadImage`) | ❌     | No aparece el selector de archivo. fumadocs-openapi pasa las specs 3.0 por `@scalar/openapi-upgrader`, que al convertirlas a 3.1 quita `type: string` / `format: binary` del cuerpo `application/octet-stream`. El playground solo muestra "Elegir un archivo" para `string` + `binary`, así que el cuerpo queda como `unknown` y el cURL manda `-d '{}'`. Captura: [`docs/screenshots/gap-upload-image.png`](docs/screenshots/gap-upload-image.png). Una salida posible es un campo propio con la opción `renderBodyField` del playground; no se hizo para no tocar la spec ni sumar código a medida. |
-| Selección de servidor           | ✅     | Blog ofrece Production y Staging en el popover "URL del servidor"; al cambiarlo se actualizan la URL y los ejemplos. El server de Petstore es relativo (`/api/v3`), así que el playground lo resuelve contra el origen del portal y los ejemplos estáticos muestran `https://example.com/api/v3`.                                                                                                                                                                                                                                                                                                      |
+| Selección de servidor           | ✅     | Blog (API ya eliminada) ofrece Production y Staging en el popover "URL del servidor"; al cambiarlo se actualizan la URL y los ejemplos. El server del Petstore del sandbox (API ya eliminada) era relativo (`/api/v3`), así que el playground lo resuelve contra el origen del portal y los ejemplos estáticos muestran `https://example.com/api/v3`.                                                                                                                                                                                                                                                  |
 | Ejemplos de código              | ✅     | cURL, JavaScript, Go, Python, Java, C# y Rust, bajo "Solicitud de ejemplo" y "Respuesta de ejemplo".                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
-Envío de solicitudes: salvo la Portal API, pasan por `/api/proxy` (`createProxy` de fumadocs-openapi) para evitar
-CORS. El proxy rechaza hosts privados (por eso Petstore, con server relativo, devuelve 400
-desde localhost) y acepta cualquier host público; para producción convendría limitarlo con
-`allowedOrigins`. La respuesta se muestra en español ("Cuerpo", "Encabezados").
+Envío de solicitudes: hoy ninguna API del catálogo pasa por `/api/proxy` (ver
+[Catálogo actual](#catálogo-actual)). Con el catálogo del sandbox, todas salvo la Portal API
+usaban el proxy (`createProxy` de fumadocs-openapi) para evitar CORS. El proxy rechaza hosts
+privados (por eso el Petstore del sandbox, con server relativo, devolvía 400 desde localhost) y
+acepta cualquier host público; para producción convendría limitarlo con `allowedOrigins`. La
+respuesta se muestra en español ("Cuerpo", "Encabezados").
 
-**Portal API sin proxy**: la API propia (`portalApi` en `src/lib/openapi.ts`) se registra sin
+**Portal API sin proxy**: la API propia (`portalApiV1` y `portalApiV2` en `src/lib/openapi.ts`) se registra sin
 `proxyUrl`, así el playground llama directo desde el navegador. Con el proxy, el servidor "Local"
 (`http://localhost:5080`) no funcionaría porque el proxy rechaza hosts privados; además la API ya
 permite CORS desde el portal (`localhost:3000`, `localhost:3100` y GitHub Pages), y en Pages no
@@ -82,10 +99,10 @@ token; `GET /dashboard/stats` responde 200.
 
 - **Proxy**: Next falla el export si existe `src/app/api/proxy/` (un route handler que necesita
   servidor), y `dynamic` no puede depender de una variable de entorno. El script mueve la carpeta
-  afuera durante el build y la restaura en un `finally`. Sin proxy, el playground de Petstore,
-  Blog y Auth llama directo a cada servidor y puede fallar por CORS; Petstore, con server
-  relativo (`/api/v3`), apunta al propio sitio de Pages. Solo la Portal API está pensada para
-  funcionar ahí.
+  afuera durante el build y la restaura en un `finally`. Sin proxy, el playground llama directo a
+  cada servidor; las tres APIs del catálogo permiten CORS. Con el catálogo del sandbox (APIs ya
+  eliminadas), Petstore, Blog y Auth podían fallar por CORS y Petstore, con server relativo
+  (`/api/v3`), apuntaba al propio sitio de Pages.
 - **Tipos de rutas viejos**: `.next/types` y `.next/dev/types` (de `next build`/`next dev`)
   siguen apuntando a `api/proxy/route.js` y el chequeo de tipos del build falla; el script los
   borra antes (se regeneran solos).
@@ -98,7 +115,7 @@ token; `GET /dashboard/stats` responde 200.
   Next agrega además `<meta http-equiv="refresh" content="1;url=/fumadocs-api-portal/…">`.
   `PageRedirect` usa `redirect()` directo en modo servidor (307, como antes con
   `next.config.mjs`) y la variante con `Suspense` en el export. Las carpetas (`/docs`,
-  `/api-store/blog`, …) se suman a `generateStaticParams` para que tengan su `index.html`.
+  `/api-store/portal`, …) se suman a `generateStaticParams` para que tengan su `index.html`.
 - **Prefetch en Windows**: al exportar en Windows, Next 16.4 guarda los datos de prefetch por
   segmento en subcarpetas (`__next.!KGRvY3Mp\$c$slug\__PAGE__.txt`) en lugar de un archivo con
   puntos (`__next.!KGRvY3Mp.$c$slug.__PAGE__.txt`), porque arma la ruta con `path.relative` y
@@ -114,8 +131,9 @@ porque el playground corta cada solicitud a los 10 s), pide un token con `demo` 
 autoriza `GET /dashboard/stats` y ve el 200 con
 "Solicitudes totales", y crea (`POST /subscriptions`, 201) y cancela (`DELETE`, 204) una
 suscripción a Petstore. Antes borra por API una suscripción a Petstore que pudiera haber
-quedado de una corrida fallida, porque crearla de nuevo daría 409. Las rutas son relativas
-(`api-store/portal/...`) para que funcionen bajo `/fumadocs-api-portal/`, y la prueba verifica
+quedado de una corrida fallida, porque crearla de nuevo daría 409. Usa la v1 de la Portal API
+y las rutas son relativas
+(`api-store/portal/v1/...`) para que funcionen bajo `/fumadocs-api-portal/`, y la prueba verifica
 que el servidor preseleccionado sea el del entorno: "Local" (`http://localhost:5080`) en el
 build local y "Producción" (`https://devportal-api.onrender.com`) en Pages.
 
@@ -125,18 +143,19 @@ GitHub Pages con la API en Render.
 ### Checklist manual
 
 Hecho con scripts de Playwright (Chromium headless) contra Pages y contra el build local en el
-puerto 3100.
+puerto 3100. Es un registro del 27/10/2026, previo al catálogo actual: las rutas de Blog y Auth
+ya no existen y las de la Portal API pasaron a `/api-store/portal/v1/…` y `/api-store/portal/v2/…`.
 
-| Ítem                                     | Resultado | Cómo se verificó                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ---------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Búsqueda en Pages                        | ✅        | Con el botón "Buscar" del header, "token" devuelve 21 resultados; al elegir "Token operations" navega a `/fumadocs-api-portal/api-store/auth/tokens/`. Igual en local.                                                                                                                                                                                                                                                                                                                                                  |
-| Ctrl+K en `/home`                        | ✅        | Abre el diálogo de búsqueda en Pages y en local. En Playwright hay que mandar `Control+k`: con `Control+K` el evento llega con `key: 'K'` y Fumadocs compara `e.key === 'k'`, por eso una prueba anterior no lo abría. Con Bloq Mayús activado pasaría lo mismo con el teclado real (detalle de la librería).                                                                                                                                                                                                           |
-| Cambio de versión del Blog               | ✅        | En `/api-store/blog/v2/comments` el selector muestra 2.0.0; al elegir 1.0.0 navega a `/fumadocs-api-portal/api-store/blog/v1/comments/` (y a `/api-store/blog/v1/comments` en local).                                                                                                                                                                                                                                                                                                                                   |
-| Tema                                     | ✅        | "Cambiar tema" alterna entre claro y oscuro (clase `dark` en `<html>` y `theme` en `localStorage`) y la elección se mantiene al recargar. Pages y local.                                                                                                                                                                                                                                                                                                                                                                |
-| Mobile (390 × 844)                       | ✅        | En `/api-store/portal/dashboard` el artículo ocupa el ancho (390 px, sin scroll horizontal); "Abrir barra lateral" muestra el árbol y navega a Suscripciones; el playground abre a pantalla completa con las pestañas "Solicitud" y "Respuesta". La URL del servidor queda recortada (`https:/…`), pero el selector funciona. Pages y local.                                                                                                                                                                            |
-| 404                                      | ✅        | `/fumadocs-api-portal/no-existe` responde 404 con la página propia y el header; el logo lleva a `/fumadocs-api-portal/home/`. En local, 404 con el header y el logo a `/home`.                                                                                                                                                                                                                                                                                                                                          |
-| URLs profundas y de carpeta en Pages     | ✅        | Desde una pestaña nueva, `/api-store/blog/v2/` termina en `/api-store/blog/v2/posts/` y `/docs/` en `/docs/introduction/`; `/api-store/portal/dashboard` carga directo.                                                                                                                                                                                                                                                                                                                                                 |
-| Cold start de Render desde el playground | ⚠️        | Tras 16 min sin tráfico, `GET /health` desde el playground de Pages falla a los 10 s con "La solicitud falló · Client side error: [TimeoutError] signal timed out" y la sugerencia de revisar CORS o usar un proxy, que no es la causa. Al repetir con la API ya despierta responde 200 en ~1 s. El corte es el `requestTimeout` por defecto del playground de fumadocs-openapi (10 s); con una respuesta simulada de 8 s llega el 200 y con una de 20 s falla a los 10 s. Mientras espera, "Enviar" no se deshabilita. |
+| Ítem                                          | Resultado | Cómo se verificó                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| --------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Búsqueda en Pages                             | ✅        | Con el botón "Buscar" del header, "token" devuelve 21 resultados; al elegir "Token operations" navega a `/fumadocs-api-portal/api-store/auth/tokens/` (Auth, API ya eliminada). Igual en local.                                                                                                                                                                                                                                                                                                                         |
+| Ctrl+K en `/home`                             | ✅        | Abre el diálogo de búsqueda en Pages y en local. En Playwright hay que mandar `Control+k`: con `Control+K` el evento llega con `key: 'K'` y Fumadocs compara `e.key === 'k'`, por eso una prueba anterior no lo abría. Con Bloq Mayús activado pasaría lo mismo con el teclado real (detalle de la librería).                                                                                                                                                                                                           |
+| Cambio de versión del Blog (API ya eliminada) | ✅        | En `/api-store/blog/v2/comments` el selector muestra 2.0.0; al elegir 1.0.0 navega a `/fumadocs-api-portal/api-store/blog/v1/comments/` (y a `/api-store/blog/v1/comments` en local).                                                                                                                                                                                                                                                                                                                                   |
+| Tema                                          | ✅        | "Cambiar tema" alterna entre claro y oscuro (clase `dark` en `<html>` y `theme` en `localStorage`) y la elección se mantiene al recargar. Pages y local.                                                                                                                                                                                                                                                                                                                                                                |
+| Mobile (390 × 844)                            | ✅        | En `/api-store/portal/dashboard` el artículo ocupa el ancho (390 px, sin scroll horizontal); "Abrir barra lateral" muestra el árbol y navega a Suscripciones; el playground abre a pantalla completa con las pestañas "Solicitud" y "Respuesta". La URL del servidor queda recortada (`https:/…`), pero el selector funciona. Pages y local.                                                                                                                                                                            |
+| 404                                           | ✅        | `/fumadocs-api-portal/no-existe` responde 404 con la página propia y el header; el logo lleva a `/fumadocs-api-portal/home/`. En local, 404 con el header y el logo a `/home`.                                                                                                                                                                                                                                                                                                                                          |
+| URLs profundas y de carpeta en Pages          | ✅        | Desde una pestaña nueva, `/api-store/blog/v2/` (Blog, API ya eliminada) termina en `/api-store/blog/v2/posts/` y `/docs/` en `/docs/introduction/`; `/api-store/portal/dashboard` carga directo.                                                                                                                                                                                                                                                                                                                        |
+| Cold start de Render desde el playground      | ⚠️        | Tras 16 min sin tráfico, `GET /health` desde el playground de Pages falla a los 10 s con "La solicitud falló · Client side error: [TimeoutError] signal timed out" y la sugerencia de revisar CORS o usar un proxy, que no es la causa. Al repetir con la API ya despierta responde 200 en ~1 s. El corte es el `requestTimeout` por defecto del playground de fumadocs-openapi (10 s); con una respuesta simulada de 8 s llega el 200 y con una de 20 s falla a los 10 s. Mientras espera, "Enviar" no se deshabilita. |
 
 ## Qué costó
 
@@ -166,7 +185,7 @@ puerto 3100.
   - La página 404 (`not-found.tsx`) usa el mismo header (`HomeHeader`).
 - **Selector de versión**: la barra lateral muestra solo la sección actual (carpetas `root`); a
   Docs y a las APIs se llega desde el navbar. Cada API tiene su propio tipo de `root` en
-  `meta.json` (`"petstore"`, `"auth"`, `"portal"`, `"blog"` en v1 y v2), así el desplegable de Fumadocs
+  `meta.json` (`"portal"` en v1 y v2, `"petstore"` en v2 y v3, `"pokeapi"`), así el desplegable de Fumadocs
   (`SidebarTabsDropdown`) agrupa solo las versiones de esa API. Las pestañas salen de
   `getVersionTabs` (`src/utils/get-version-tabs.ts`, una versión de `getLayoutTabs` que
   entiende las carpetas de endpoints) con el `info.version` de cada spec como
@@ -174,11 +193,13 @@ puerto 3100.
   MDX no lo tienen, así Docs queda sin selector). El desplegable nativo del layout no se
   puede deshabilitar, así que se desactiva (`tabs={false}`) y el mismo componente se monta en el
   `banner` de la barra lateral (`src/components/VersionSelect/`) con `disabled` cuando la API
-  tiene una sola versión; su nombre accesible incluye la versión ("Versión 1.0.19"). Al
-  cambiar de versión, Fumadocs lleva a la página equivalente (`v2/comments` → `v1/comments`)
-  o a la primera de la otra versión.
-- **Carpetas sin página**: `/api-store/petstore`, `/api-store/blog`, etc. no tienen página propia;
-  se redirigen a la primera página de la carpeta (en `[...slug]/page.tsx`, con `flattenTree`).
+  tiene una sola versión; su nombre accesible incluye la versión ("Versión 2.10.0"). Al
+  cambiar de versión, Fumadocs lleva a la página equivalente (`portal/v2/autenticacion` →
+  `portal/v1/autenticacion`) o a la primera de la otra versión. Las versiones aparecen en el
+  orden del `meta.json` de la API, que lista la más nueva primero.
+- **Carpetas sin página**: `/api-store/portal`, `/api-store/pokeapi`, etc. no tienen página propia;
+  se redirigen a la primera página de la carpeta (en `[...slug]/page.tsx`, con `flattenTree`). En
+  las APIs con versiones es la más nueva (`/api-store/portal` → `/api-store/portal/v2/salud`).
 - **Endpoints en la barra lateral** (como Zudoku): se mantiene una página por recurso (tag) y un
   plugin del loader (`src/lib/endpoints-plugin.tsx`, `transformPageTree`) convierte cada página
   generada en una carpeta cuyo índice es la página y cuyos hijos son links a las anclas de sus
@@ -207,8 +228,8 @@ puerto 3100.
 - En el cajón móvil de Docs y APIs los links del navbar marcan el activo con `data-active`, sin
   `aria-current`, porque son los items nativos de Fumadocs.
 - El buscador del API Store busca en nombre, descripción y tags, como pide el spec. El ejemplo
-  del plan de buscar "CONTENIDO" necesitaría buscar también por categoría; no se agregó ni se
-  prueba en el smoke test.
+  del plan de buscar "CONTENIDO" (categoría de la Blog API, ya eliminada) necesitaría buscar
+  también por categoría; no se agregó ni se prueba en el smoke test.
 - El buscador de la documentación (Orama) usa un tokenizador multilingüe y no distingue
   acentos ("pagina" encuentra "página"); no hace falta configurarlo.
 - La página 404 de la raíz (`src/app/not-found.tsx`) no está dentro de ningún layout: la barra

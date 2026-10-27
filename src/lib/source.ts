@@ -4,7 +4,7 @@ import { defineDocs } from 'fumadocs-mdx/macro'
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema'
 import { z } from 'zod'
 import type { OpenAPIServer } from 'fumadocs-openapi/server'
-import { auth, blogV1, blogV2, petstore, portalApi } from '@/lib/openapi'
+import { petstoreV2, petstoreV3, pokeapi, portalApiV1, portalApiV2 } from '@/lib/openapi'
 import { endpointsPlugin } from '@/lib/endpoints-plugin'
 import { normalizeText } from '@/utils/normalize-text'
 
@@ -34,16 +34,16 @@ function apiSource(server: OpenAPIServer, baseDir: string) {
 export const source = loader(
   {
     content: docs.toFumadocsSource(),
-    petstore: await apiSource(petstore, 'api-store/petstore/(generated)'),
-    blogV1: await apiSource(blogV1, 'api-store/blog/v1/(generated)'),
-    blogV2: await apiSource(blogV2, 'api-store/blog/v2/(generated)'),
-    auth: await apiSource(auth, 'api-store/auth/(generated)'),
-    portal: await apiSource(portalApi, 'api-store/portal/(generated)'),
+    portalV1: await apiSource(portalApiV1, 'api-store/portal/v1/(generated)'),
+    portalV2: await apiSource(portalApiV2, 'api-store/portal/v2/(generated)'),
+    petstoreV2: await apiSource(petstoreV2, 'api-store/petstore/v2/(generated)'),
+    petstoreV3: await apiSource(petstoreV3, 'api-store/petstore/v3/(generated)'),
+    pokeapi: await apiSource(pokeapi, 'api-store/pokeapi/(generated)'),
   },
   {
     baseUrl: '/',
     plugins: [
-      petstore.loaderPlugin(),
+      portalApiV1.loaderPlugin(),
       endpointsPlugin(),
       lucideIconsPlugin(),
       {

@@ -26,7 +26,7 @@ export const es = {
     eyebrow: 'Plataforma de APIs v2.0',
     title: 'Integraciones más rápidas con nuestras APIs',
     description:
-      'Documentación interactiva, pruebas de endpoints en tiempo real e integración en minutos. Tres APIs disponibles: Petstore, Blog y Auth.',
+      'Documentación interactiva, pruebas de endpoints en tiempo real e integración en minutos. Tres APIs disponibles: Portal API, Petstore y PokeAPI.',
     primaryAction: 'Explorar APIs',
     secondaryAction: 'Leer la documentación',
     clientsTitle: 'Equipos de todo el mundo confían en nosotros',
@@ -72,6 +72,10 @@ export const es = {
       stable: 'estable',
       beta: 'beta',
       deprecated: 'obsoleta',
+    },
+    visibility: {
+      internal: 'Interna',
+      public: 'Pública',
     },
     footerNote:
       'Esta página es un componente React propio dentro de Fumadocs, construido con Tailwind CSS y los tokens de tema de fumadocs-ui.',

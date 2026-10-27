@@ -20,7 +20,7 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
   const params = await props.params
   const page = source.getPage(params.slug)
   if (!page) {
-    // Folders such as `/docs` or `/api-store/blog` have no page of their own: land on their first page.
+    // Folders such as `/docs` or `/api-store/portal` have no page of their own: land on their first page.
     const prefix = `/${params.slug.join('/')}/`
     const first = flattenTree(source.getPageTree().children).find((item) =>
       item.url.startsWith(prefix),

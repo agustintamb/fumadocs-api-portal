@@ -36,7 +36,7 @@ test.describe('desktop header', () => {
 
   test('renders the same header on every section', async ({ page }) => {
     const boxes = []
-    for (const path of ['/home', '/docs/introduction', '/api-store/petstore/pet']) {
+    for (const path of ['/home', '/docs/introduction', '/api-store/petstore/v3/pet']) {
       await page.goto(path)
       const header = page.locator('header').first()
       await expect(
@@ -96,7 +96,7 @@ test.describe('mobile header', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 
   test('opens the sidebar from the header on API pages', async ({ page }) => {
-    await page.goto('/api-store/petstore/pet')
+    await page.goto('/api-store/petstore/v3/pet')
     // The header must not squeeze the page content on small screens.
     expect((await page.locator('article').boundingBox())?.width).toBeGreaterThan(300)
     await page
@@ -110,7 +110,7 @@ test.describe('mobile header', () => {
     ).toBeVisible()
     await expect(panel.getByRole('link', { name: 'Pet', exact: true })).toBeVisible()
     await expect(
-      panel.getByRole('button', { name: 'Versión 1.0.19', exact: true }),
+      panel.getByRole('button', { name: 'Versión 1.0.28', exact: true }),
     ).toBeVisible()
   })
 })
@@ -151,11 +151,10 @@ test('navigates the docs sidebar', async ({ page }) => {
 })
 
 for (const [root, landing] of [
-  ['/api-store/petstore', /\/api-store\/petstore\/pet$/],
-  ['/api-store/blog', /\/api-store\/blog\/v1\/posts$/],
-  ['/api-store/blog/v1', /\/api-store\/blog\/v1\/posts$/],
-  ['/api-store/blog/v2', /\/api-store\/blog\/v2\/posts$/],
-  ['/api-store/auth', /\/api-store\/auth\/auth$/],
+  // APIs with versions open the newest one.
+  ['/api-store/portal', /\/api-store\/portal\/v2\/salud$/],
+  ['/api-store/petstore', /\/api-store\/petstore\/v3\/pet$/],
+  ['/api-store/pokeapi', /\/api-store\/pokeapi\/pokemon$/],
 ] as const)
   test(`${root} lands on a reference page`, async ({ page }) => {
     const res = await page.goto(root)
@@ -166,79 +165,74 @@ for (const [root, landing] of [
     await expect(page.getByRole('button', { name: 'Enviar' }).first()).toBeVisible()
   })
 
-test('blog lands on v1', async ({ page }) => {
-  await page.goto('/api-store/blog')
-  await expect(page).toHaveURL(/\/api-store\/blog\/v1\//)
-})
-
 const versionSelect = (page: Page) =>
   page.locator('#nd-sidebar').getByRole('button', { name: /^Versión / })
 
 test('has no section switcher', async ({ page }) => {
-  for (const path of ['/docs/introduction', '/api-store/petstore/pet']) {
+  for (const path of ['/docs/introduction', '/api-store/petstore/v3/pet']) {
     await page.goto(path)
     const sidebar = page.locator('#nd-sidebar')
-    for (const section of ['Documentación', 'Petstore API', 'Blog API', 'Auth API'])
+    for (const section of ['Documentación', 'Portal API', 'Petstore API', 'PokeAPI'])
       await expect(sidebar.getByRole('button', { name: section })).toHaveCount(0)
   }
 })
 
 test('shows a disabled version selector for single-version APIs', async ({ page }) => {
-  for (const [path, version] of [
-    ['/api-store/petstore/pet', '1.0.19'],
-    ['/api-store/auth/auth', '2.0.0'],
-  ]) {
-    await page.goto(path)
-    await expect(versionSelect(page)).toHaveText(version)
-    await expect(versionSelect(page)).toHaveAccessibleName(`Versión ${version}`)
-    await expect(versionSelect(page)).toBeDisabled()
-  }
+  await page.goto('/api-store/pokeapi/pokemon')
+  await expect(versionSelect(page)).toHaveText('2.10.0')
+  await expect(versionSelect(page)).toHaveAccessibleName('Versión 2.10.0')
+  await expect(versionSelect(page)).toBeDisabled()
   await page.goto('/docs/introduction')
   await expect(page.getByRole('button', { name: 'Versión' })).toHaveCount(0)
 })
 
-test('switches Blog versions to the matching page', async ({ page }) => {
-  await page.goto('/api-store/blog/v2/comments')
+test('switches Portal API versions to the matching page', async ({ page }) => {
+  await page.goto('/api-store/portal/v2/autenticacion')
   await expect(versionSelect(page)).toHaveText('2.0.0')
   await expect(versionSelect(page)).toHaveAccessibleName('Versión 2.0.0')
   await expect(versionSelect(page)).toBeEnabled()
   await versionSelect(page).click()
   await expect(page.getByRole('link', { name: '2.0.0', exact: true })).toBeVisible()
   await page.getByRole('link', { name: '1.0.0', exact: true }).click()
-  await expect(page).toHaveURL(/\/api-store\/blog\/v1\/comments$/)
+  await expect(page).toHaveURL(/\/api-store\/portal\/v1\/autenticacion$/)
 })
 
 test('lists endpoints with their verb in the sidebar', async ({ page }) => {
-  await page.goto('/api-store/petstore/pet')
+  await page.goto('/api-store/petstore/v3/pet')
   const endpoint = page
     .locator('#nd-sidebar')
-    .getByRole('link', { name: 'Update an existing pet PUT', exact: true })
+    .getByRole('link', { name: 'Update an existing pet. PUT', exact: true })
   await expect(endpoint).toBeVisible()
   await endpoint.click()
-  await expect(page).toHaveURL(/\/api-store\/petstore\/pet#update-an-existing-pet$/)
+  await expect(page).toHaveURL(/\/api-store\/petstore\/v3\/pet#update-an-existing-pet$/)
   await expect(page.locator('h2#update-an-existing-pet')).toBeInViewport()
 
-  await page.goto('/api-store/petstore/store#place-an-order-for-a-pet')
+  await page.goto('/api-store/petstore/v3/store#place-an-order-for-a-pet')
   await expect(page.locator('h2#place-an-order-for-a-pet')).toBeInViewport()
 })
 
 test('publishes the portal api in the api store', async ({ page }) => {
   await page.goto('/api-store')
-  await expect(page.getByRole('article')).toHaveCount(4)
+  await expect(page.getByRole('article')).toHaveCount(3)
   await expect(page.getByRole('article').filter({ hasText: 'Portal API' })).toContainText(
     'Plataforma',
   )
 
-  await page.goto('/api-store/portal')
-  await expect(page).toHaveURL(/\/api-store\/portal\/salud$/)
-  await expect(versionSelect(page)).toHaveText('1.0.0')
-  await expect(versionSelect(page)).toBeDisabled()
-
+  // Resources follow the spec's tag order, in both versions.
   const sidebar = page.locator('#nd-sidebar')
-  for (const resource of ['Salud', 'Catálogo', 'Dashboard', 'Suscripciones', 'Clientes'])
-    await expect(sidebar.getByRole('link', { name: resource, exact: true })).toBeVisible()
+  const resources = ['Salud', 'Autenticación', 'Catálogo', 'Clientes', 'Dashboard']
+  for (const version of ['v1', 'v2']) {
+    await page.goto(`/api-store/portal/${version}/salud`)
+    await expect(sidebar.getByRole('link', { name: 'Salud', exact: true })).toBeVisible()
+    const links = await sidebar.getByRole('link').allInnerTexts()
+    expect(links.filter((name) => resources.includes(name)).slice(0, 2)).toEqual([
+      'Salud',
+      'Autenticación',
+    ])
+  }
+
   await sidebar.getByRole('link', { name: 'Autenticación', exact: true }).click()
-  await expect(page).toHaveURL(/\/api-store\/portal\/autenticacion$/)
+  await expect(page).toHaveURL(/\/api-store\/portal\/v2\/autenticacion$/)
   await expect(
     sidebar.getByRole('link', {
       name: 'Obtener un token de acceso con el usuario demo POST',
@@ -248,7 +242,7 @@ test('publishes the portal api in the api store', async ({ page }) => {
 })
 
 test('petstore playground and auth are in spanish', async ({ page }) => {
-  await page.goto('/api-store/petstore/pet')
+  await page.goto('/api-store/petstore/v3/pet')
   await expect(page.getByText('Parámetros de consulta').first()).toBeVisible()
 
   const playground = await openPlayground(page, 'finds-pets-by-status')
@@ -269,7 +263,7 @@ test('petstore playground and auth are in spanish', async ({ page }) => {
 })
 
 test('petstore api key selector is in spanish', async ({ page }) => {
-  await page.goto('/api-store/petstore/pet')
+  await page.goto('/api-store/petstore/v3/pet')
   const playground = await openPlayground(page, 'find-pet-by-id')
   await playground.getByRole('combobox').filter({ hasText: 'api_key' }).click()
   await expect(page.getByRole('option', { name: 'petstore_auth' })).toBeVisible()

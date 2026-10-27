@@ -76,7 +76,7 @@ test('playground flow against the portal api', async ({ page, request }) => {
   const token = await test.step('get a token with the demo user', async () => {
     const dialog = await openPlayground(
       page,
-      'api-store/portal/autenticacion',
+      'api-store/portal/v1/autenticacion',
       'obtener-un-token-de-acceso-con-el-usuario-demo',
     )
     await dialog.getByRole('textbox', { name: 'username' }).fill(DEMO_USER.username)
@@ -90,7 +90,7 @@ test('playground flow against the portal api', async ({ page, request }) => {
   await test.step('read the dashboard stats', async () => {
     const dialog = await openPlayground(
       page,
-      'api-store/portal/dashboard',
+      'api-store/portal/v1/dashboard',
       'obtener-las-métricas-del-dashboard',
     )
     await authorize(dialog, token)
@@ -103,7 +103,7 @@ test('playground flow against the portal api', async ({ page, request }) => {
   const subscriptionId = await test.step('subscribe to an api', async () => {
     const dialog = await openPlayground(
       page,
-      'api-store/portal/suscripciones',
+      'api-store/portal/v1/suscripciones',
       'suscribirse-a-una-api-del-catálogo',
     )
     await authorize(dialog, token)
@@ -117,7 +117,7 @@ test('playground flow against the portal api', async ({ page, request }) => {
   await test.step('cancel the subscription', async () => {
     const dialog = await openPlayground(
       page,
-      'api-store/portal/suscripciones',
+      'api-store/portal/v1/suscripciones',
       'cancelar-una-suscripción',
     )
     await authorize(dialog, token)

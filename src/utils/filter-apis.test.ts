@@ -10,15 +10,15 @@ const apis: ApiCardData[] = API_CATALOG.map((api) => ({
 
 describe('filterApis', () => {
   it('matches accent- and case-insensitively on description', () => {
-    expect(filterApis(apis, 'AUTENTICACION', 'all').map((a) => a.id)).toEqual(['auth'])
+    expect(filterApis(apis, 'CATALOGO', 'all').map((a) => a.id)).toEqual(['portal'])
   })
 
   it('matches tags', () => {
-    expect(filterApis(apis, 'comments', 'all').map((a) => a.id)).toEqual(['blog'])
+    expect(filterApis(apis, 'subscriptions', 'all').map((a) => a.id)).toEqual(['portal'])
   })
 
   it('combines chip and query', () => {
-    expect(filterApis(apis, 'jwt', 'blog')).toEqual([])
+    expect(filterApis(apis, 'jwt', 'pokeapi')).toEqual([])
   })
 
   it('ignores surrounding spaces', () => {
@@ -26,6 +26,6 @@ describe('filterApis', () => {
   })
 
   it('returns everything for an empty query and the all chip', () => {
-    expect(filterApis(apis, '', 'all')).toHaveLength(4)
+    expect(filterApis(apis, '', 'all')).toHaveLength(3)
   })
 })

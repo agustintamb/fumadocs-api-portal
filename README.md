@@ -12,9 +12,9 @@ respecto de Zudoku) están en [`NOTES.md`](NOTES.md).
 
 - **Inicio, Dashboard y API Store**: páginas propias en React. El API Store es un catálogo con
   buscador y filtros por API.
-- **Referencia de APIs** generada desde specs OpenAPI (Petstore, Blog v1/v2, Auth y Portal API):
-  una página por recurso (tag); en la barra lateral cada recurso lista sus endpoints con el verbo
-  HTTP.
+- **Referencia de APIs** generada desde specs OpenAPI (Portal API v1/v2, Petstore v2/v3 y
+  PokeAPI; ver [Catálogo](#catálogo-de-apis)): una página por recurso (tag); en la barra lateral
+  cada recurso lista sus endpoints con el verbo HTTP.
 - **Playground** en cada endpoint: completar parámetros, autenticarse (API key, Bearer, OAuth2
   implícito), elegir servidor y enviar la solicitud. También muestra ejemplos en cURL,
   JavaScript, Go, Python, Java, C# y Rust.
@@ -55,7 +55,7 @@ tarda. Para ver la velocidad real: `npm run build && npm start`.
 | `npm run test:e2e`    | Corre el smoke test de Playwright. Hace el build y levanta el servidor en el puerto 3100 si no hay uno corriendo ahí.              |
 | `npm run lint`        | Corre ESLint.                                                                                                                      |
 | `npm run typecheck`   | Genera los tipos de Next (`next typegen`) y corre `tsc --noEmit`.                                                                  |
-| `npm run spec:sync`   | Copia la spec de la Portal API desde `../devportal-api/openapi/portal-api.json` a `apis/portal-api.json`.                          |
+| `npm run spec:sync`   | Copia las specs v1 y v2 de la Portal API desde `../devportal-api/openapi/` a `apis/portal-api.json` y `apis/portal-api-v2.json`.   |
 | `npm run spec:vendor` | Descarga las specs de Petstore (v2 y v3) y PokeAPI a `apis/` (ver [Specs de terceros](#specs-de-terceros-vendorizadas)).           |
 
 Otros scripts: `lint:fix`, `format`, `format:check` y `test:watch`.
@@ -106,12 +106,12 @@ redirigen (componente `PageRedirect`), así funcionan igual en el servidor y en 
 Fumadocs no es un sitio armado sino un conjunto de librerías que se integran en una app de Next.
 Este proyecto usa cuatro:
 
-| Paquete            | Rol                                                                                                                                                                                                                                                                                   |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fumadocs-mdx`     | Lee los `.mdx` y `meta.json` de `content/`, valida su frontmatter (con `zod`) y los compila. Se conecta a Next con `createMDX()` en `next.config.mjs`; `defineDocs` (en `src/lib/source.ts`) define la colección.                                                                     |
-| `fumadocs-core`    | El motor sin UI. Su `loader()` une varias fuentes de contenido en un único **page tree** (el árbol de la barra lateral) y resuelve URL → página. También provee la búsqueda (Orama), los plugins del loader y utilidades como `flattenTree`.                                          |
-| `fumadocs-ui`      | La interfaz: layouts (`HomeLayout`, `DocsLayout` Notebook), página de docs (`DocsPage`, TOC, anterior/siguiente), componentes MDX, diálogo de búsqueda, tema claro/oscuro e i18n. En este proyecto es un alias de `@fumadocs/base-ui` (construido sobre Base UI + Tailwind CSS 4).    |
-| `fumadocs-openapi` | Convierte specs OpenAPI en páginas: `createOpenAPI()` carga el YAML y `staticSource()` genera una página virtual por tag, que se suma al `loader()` como una fuente más. En el cliente, `createOpenAPIPage()` renderiza la referencia y el playground; `createProxy()` arma el proxy. |
+| Paquete            | Rol                                                                                                                                                                                                                                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fumadocs-mdx`     | Lee los `.mdx` y `meta.json` de `content/`, valida su frontmatter (con `zod`) y los compila. Se conecta a Next con `createMDX()` en `next.config.mjs`; `defineDocs` (en `src/lib/source.ts`) define la colección.                                                                                   |
+| `fumadocs-core`    | El motor sin UI. Su `loader()` une varias fuentes de contenido en un único **page tree** (el árbol de la barra lateral) y resuelve URL → página. También provee la búsqueda (Orama), los plugins del loader y utilidades como `flattenTree`.                                                        |
+| `fumadocs-ui`      | La interfaz: layouts (`HomeLayout`, `DocsLayout` Notebook), página de docs (`DocsPage`, TOC, anterior/siguiente), componentes MDX, diálogo de búsqueda, tema claro/oscuro e i18n. En este proyecto es un alias de `@fumadocs/base-ui` (construido sobre Base UI + Tailwind CSS 4).                  |
+| `fumadocs-openapi` | Convierte specs OpenAPI en páginas: `createOpenAPI()` carga la spec (YAML o JSON) y `staticSource()` genera una página virtual por tag, que se suma al `loader()` como una fuente más. En el cliente, `createOpenAPIPage()` renderiza la referencia y el playground; `createProxy()` arma el proxy. |
 
 El recorrido de una página es:
 
@@ -127,7 +127,7 @@ apis/*.yaml ──(fumadocs-openapi)┘        (fumadocs-core)                  
    (endpoints con verbo bajo cada recurso), el de fumadocs-openapi (badges) y el de íconos Lucide.
 3. `[...slug]/page.tsx` busca la página: si es OpenAPI renderiza `<OpenApiPage>`, si es MDX su
    contenido con los componentes de `src/components/mdx.tsx`. Si la URL es una carpeta sin página
-   (`/docs`, `/api-store/blog`), redirige a su primera página; `generateStaticParams` también
+   (`/docs`, `/api-store/portal`), redirige a su primera página; `generateStaticParams` también
    lista esas carpetas (`getFolderSlugs`) para que el export estático genere su redirección.
 4. `src/app/(docs)/layout.tsx` pasa el árbol al `DocsLayout`, que dibuja la barra lateral. Las
    carpetas con `root` en `meta.json` son secciones: la barra lateral muestra solo la sección
@@ -147,7 +147,7 @@ apis/*.yaml ──(fumadocs-openapi)┘        (fumadocs-core)                  
 ## Estructura
 
 ```text
-apis/                       Specs OpenAPI (copias byte a byte; no se editan; portal-api.json sale de spec:sync)
+apis/                       Specs OpenAPI (no se editan: portal-api*.json salen de spec:sync y el resto de spec:vendor)
 content/
   meta.json                 Raíz del árbol
   docs/                     Documentación MDX + meta.json (orden, separadores, link externo)
@@ -167,27 +167,27 @@ src/
   data/                     Datos de ejemplo (catálogo, dashboard, clientes, footer)
   i18n/es.ts                Textos propios de la interfaz
 e2e/                        Smoke test, capturas y prueba con la Portal API (Playwright)
-scripts/                    sync-spec.mjs (spec:sync) y build-pages.mjs (build:pages)
+scripts/                    sync-spec.mjs (spec:sync), vendor-specs.mjs (spec:vendor) y build-pages.mjs (build:pages)
 public/clients/             Logos SVG del carrusel de clientes (de simpleicons, CC0)
 docs/screenshots/           Capturas referenciadas desde NOTES.md
 ```
 
 ## Rutas
 
-| Ruta                                       | Contenido                                                                   |
-| ------------------------------------------ | --------------------------------------------------------------------------- |
-| `/`                                        | Redirige a `/home`.                                                         |
-| `/home`                                    | Landing con hero y carrusel de clientes.                                    |
-| `/dashboard`                               | Estadísticas y actividad reciente filtrable.                                |
-| `/api-store`                               | Catálogo de APIs con buscador y filtros.                                    |
-| `/docs/introduction`                       | Introducción de la documentación; `/docs` y `/introduction` redirigen aquí. |
-| `/docs/components`                         | Ejemplos de componentes de Fumadocs en MDX.                                 |
-| `/docs/api-catalog`                        | Catálogo de APIs escrito en MDX.                                            |
-| `/docs/customization`                      | Dónde se personaliza cada aspecto del portal.                               |
-| `/docs/project-structure`                  | Carpetas y archivos clave.                                                  |
-| `/api-store/petstore`                      | Referencia y playground de Petstore (lleva a la primera página).            |
-| `/api-store/blog/v1`, `/api-store/blog/v2` | Blog con selector de versión; `/api-store/blog` lleva a v1.                 |
-| `/api-store/auth`                          | Referencia y playground de Auth.                                            |
+| Ruta                                               | Contenido                                                                   |
+| -------------------------------------------------- | --------------------------------------------------------------------------- |
+| `/`                                                | Redirige a `/home`.                                                         |
+| `/home`                                            | Landing con hero y carrusel de clientes.                                    |
+| `/dashboard`                                       | Estadísticas y actividad reciente filtrable.                                |
+| `/api-store`                                       | Catálogo de APIs con buscador y filtros.                                    |
+| `/docs/introduction`                               | Introducción de la documentación; `/docs` y `/introduction` redirigen aquí. |
+| `/docs/components`                                 | Ejemplos de componentes de Fumadocs en MDX.                                 |
+| `/docs/api-catalog`                                | Catálogo de APIs escrito en MDX.                                            |
+| `/docs/customization`                              | Dónde se personaliza cada aspecto del portal.                               |
+| `/docs/project-structure`                          | Carpetas y archivos clave.                                                  |
+| `/api-store/portal/v1`, `/api-store/portal/v2`     | Portal API con selector de versión; `/api-store/portal` lleva a v2.         |
+| `/api-store/petstore/v2`, `/api-store/petstore/v3` | Petstore con selector de versión; `/api-store/petstore` lleva a v3.         |
+| `/api-store/pokeapi`                               | Referencia y playground de PokeAPI (lleva a la primera página).             |
 
 ## Qué se puede configurar y extender
 
@@ -241,17 +241,44 @@ tema.
 2. Agregar `"mi-pagina"` a `pages` en `content/docs/meta.json`, en el lugar donde debe aparecer
    (ahí también van los separadores `"---Título---"` y los links `"[Texto](https://...)"`).
 
+## Catálogo de APIs
+
+El API Store publica tres APIs. El catálogo vive en `src/data/apis.ts` (mismo orden y valores
+que el `seed.sql` del backend); la versión y la cantidad de endpoints de cada tarjeta se leen de
+las specs.
+
+| API          | Visibilidad | Specs (`apis/`)                                   | Origen                             | Rutas                                                  |
+| ------------ | ----------- | ------------------------------------------------- | ---------------------------------- | ------------------------------------------------------ |
+| Portal API   | Interna     | `portal-api.json` (v1), `portal-api-v2.json` (v2) | Propia: `npm run spec:sync`        | `/api-store/portal/v1/…`, `/api-store/portal/v2/…`     |
+| Petstore API | Pública     | `petstore-v2.json` (v2), `petstore-v3.json` (v3)  | Vendorizada: `npm run spec:vendor` | `/api-store/petstore/v2/…`, `/api-store/petstore/v3/…` |
+| PokeAPI      | Pública     | `pokeapi.yaml`                                    | Vendorizada: `npm run spec:vendor` | `/api-store/pokeapi/…`                                 |
+
+- **Visibilidad** (`visibility` en `src/data/apis.ts`, textos en `es.apiStore.visibility`):
+  `internal` (**Interna**) es una API de la empresa y `public` (**Pública**) una de terceros. No
+  dice nada sobre credenciales.
+- **Versiones**: cada versión es una carpeta con el id de la API como `root`, y el `meta.json`
+  de la API lista la más nueva primero (`["v2", "v1"]`). Así `/api-store/portal` abre la v2 y el
+  selector la muestra arriba.
+- **Sin proxy**: las tres APIs permiten CORS, así que el playground las llama directo desde el
+  navegador, también en GitHub Pages.
+
 ## Cómo agregar una API
 
-1. Copiar el YAML a `apis/`, por ejemplo `apis/orders-api.yaml`.
+1. Guardar la spec en `apis/`, en JSON o YAML (OpenAPI 3; una Swagger 2.0 hay que convertirla,
+   como hace `spec:vendor` con Petstore v2):
+   - **API propia**: que la genere su build y copiarla con un script, como `spec:sync` con la
+     Portal API.
+   - **API de terceros**: agregar su URL a `scripts/vendor-specs.mjs` y correr
+     `npm run spec:vendor` (ver [Specs de terceros](#specs-de-terceros-vendorizadas)).
 2. Crear la instancia en `src/lib/openapi.ts`:
 
    ```ts
-   export const orders = createOpenAPI({
-     proxyUrl: PROXY_URL,
-     input: ['./apis/orders-api.yaml'],
-   })
+   export const orders = createOpenAPI({ input: ['./apis/orders-api.yaml'] })
    ```
+
+   Si el servidor de la API no permite CORS, agregar `proxyUrl: '/api/proxy'` para que el
+   playground pase por el proxy del portal. El proxy solo existe con servidor (`npm run dev` o
+   `npm start`), no en GitHub Pages, y rechaza hosts privados como `localhost`.
 
 3. Registrar la fuente en el `loader()` de `src/lib/source.ts`:
 
@@ -269,25 +296,33 @@ tema.
    ```
 
 5. Agregar `"orders"` a `pages` en `content/api-store/meta.json`.
-6. Agregar la tarjeta al catálogo en `src/data/apis.ts` (la versión y la cantidad de endpoints
-   se leen de la spec) y, si corresponde, el link del footer en `src/data/footer.ts`.
+6. Agregar la tarjeta al catálogo en `src/data/apis.ts` (con su `visibility`; la versión y la
+   cantidad de endpoints se leen de la spec) y, si corresponde, el link del footer en
+   `src/data/footer.ts`.
 
 La ruta `/api-store/orders` redirige automáticamente a la primera página de la API. Cada página
 toma su URL del nombre del tag en minúsculas, con guiones y sin tildes (`Autenticación` →
-`/api-store/portal/autenticacion`). Para una API con versiones, se sigue el ejemplo de
-`content/api-store/blog/`: una carpeta por versión, todas con el id de la API como `root` (en
-Blog, `"blog"`).
+`/api-store/portal/v2/autenticacion`).
 
-Los YAML del sandbox en `apis/` (`openapi.yaml`, `blog-api*.yaml`, `auth-api.yaml`) son copias
-byte a byte de los del sandbox. No se editan; si cambian, se reemplaza el archivo completo. Las
-excepciones son la spec de la Portal API y las specs de terceros (ver abajo).
+Para una API con versiones se sigue el ejemplo de `content/api-store/portal/`: una carpeta por
+versión (`v1/meta.json`, `v2/meta.json`), todas con el id de la API como `root`, una fuente por
+versión en `source.ts` (`'api-store/portal/v2/(generated)'`) y el `meta.json` de la API sin
+`root` y con la versión más nueva primero:
 
-`apis/portal-api.json` es la spec de la API propia del portal (repo
-`devportal-api`). No viene del sandbox: la genera el build del backend y se actualiza solo con
-`npm run spec:sync`, que la copia desde `../devportal-api/openapi/` (el repo del backend tiene que
-estar clonado en la misma carpeta que este y compilado con `dotnet build`; si no encuentra la
-spec, el script falla con un mensaje). Tampoco se edita a mano. Esta API se registra sin
-`proxyUrl` (ver [`NOTES.md`](NOTES.md#funciones-del-playground)).
+```json
+{ "title": "Portal API", "pages": ["v2", "v1"] }
+```
+
+Las specs de `apis/` no se editan a mano: las de la Portal API salen de `spec:sync` y las de
+terceros de `spec:vendor`.
+
+`apis/portal-api.json` (v1) y `apis/portal-api-v2.json` (v2) son las specs de la API propia del
+portal (repo `devportal-api`). Las genera el build del backend y se actualizan solo con
+`npm run spec:sync`, que las copia desde `../devportal-api/openapi/` (`portal-api.json` y
+`portal-api_v2.json`, el nombre que elige el generador). El repo del backend tiene que estar
+clonado en la misma carpeta que este y compilado con `dotnet build`; si no encuentra una spec, el
+script falla con un mensaje. Esta API se registra sin `proxyUrl` (ver
+[`NOTES.md`](NOTES.md#funciones-del-playground)).
 
 ### Specs de terceros (vendorizadas)
 
@@ -372,7 +407,7 @@ El script (`scripts/build-pages.mjs`, multiplataforma):
    el build.
 
 Con `STATIC_EXPORT=1`, `next.config.mjs` activa `output: 'export'`, `basePath`, `assetPrefix` y
-`trailingSlash: true`, y `src/lib/openapi.ts` registra las APIs sin `proxyUrl` y deja en la
+`trailingSlash: true`, y `src/lib/openapi.ts` deja en la
 Portal API solo el server de `PORTAL_API_URL`, que es obligatoria: sin ella el script corta antes
 de compilar (ver [URL de la Portal API por ambiente](#url-de-la-portal-api-por-ambiente)). La
 búsqueda usa
@@ -388,10 +423,9 @@ a `<carpeta>/fumadocs-api-portal/` y correr `npx serve <carpeta>`).
 
 Limitaciones del sitio estático:
 
-- **Sin proxy**: el playground de Petstore, Blog y Auth llama directo desde el navegador a cada
-  servidor, que puede rechazar la solicitud por CORS. Petstore, además, tiene un server relativo
-  (`/api/v3`) que en Pages apunta al propio sitio. La Portal API funciona porque permite CORS
-  desde `https://agustintamb.github.io`.
+- **Sin proxy**: el playground llama directo desde el navegador a cada servidor. Funciona porque
+  las tres APIs del catálogo permiten CORS (la Portal API, desde `https://agustintamb.github.io`);
+  una API sin CORS solo se podría probar con servidor, a través del proxy.
 - **Sin redirecciones del servidor**: las redirecciones son páginas HTML (sin código 307).
 - Ver otros detalles en [`NOTES.md`](NOTES.md#build-estático-para-github-pages).
 
