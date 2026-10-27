@@ -1,6 +1,7 @@
 import { createOpenAPI } from 'fumadocs-openapi/server'
 
-const PROXY_URL = '/api/proxy'
+// The static export (GitHub Pages) has no server, so the proxy route doesn't exist there.
+const PROXY_URL = process.env.STATIC_EXPORT === '1' ? undefined : '/api/proxy'
 
 export const petstore = createOpenAPI({
   proxyUrl: PROXY_URL,

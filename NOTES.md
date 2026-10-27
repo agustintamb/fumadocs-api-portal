@@ -76,6 +76,36 @@ local: con el servidor "Local", `POST /auth/token` con el usuario demo devuelve 
 sección "Autorización" (esquema `bearerAuth`) el campo viene con `Bearer ` (con el espacio) y se completa con el
 token; `GET /dashboard/stats` responde 200.
 
+## Build estático para GitHub Pages
+
+`npm run build:pages` (ver el README) genera `out/` con `output: 'export'`. Lo que se resolvió:
+
+- **Proxy**: Next falla el export si existe `src/app/api/proxy/` (un route handler que necesita
+  servidor), y `dynamic` no puede depender de una variable de entorno. El script mueve la carpeta
+  afuera durante el build y la restaura en un `finally`. Sin proxy, el playground de Petstore,
+  Blog y Auth llama directo a cada servidor y puede fallar por CORS; Petstore, con server
+  relativo (`/api/v3`), apunta al propio sitio de Pages. Solo la Portal API está pensada para
+  funcionar ahí.
+- **Tipos de rutas viejos**: `.next/types` y `.next/dev/types` (de `next build`/`next dev`)
+  siguen apuntando a `api/proxy/route.js` y el chequeo de tipos del build falla; el script los
+  borra antes (se regeneran solos).
+- **Búsqueda**: `/api/search` exporta `staticGET` con `dynamic = 'force-static'` y el
+  `RootProvider` usa `type: 'static'`, así el índice es un JSON (`out/api/search`) y se busca en el
+  navegador, en ambos modos. El `api` va con el `basePath` explícito porque fumadocs-core toma la
+  base de `import.meta.env.BASE_URL` (Vite) y en Next cae a `/`.
+- **Redirecciones**: con Next 16.4, `redirect()` en el cuerpo de una página prerenderizada deja un
+  shell `__next_error__` que solo redirige cuando carga el JS; lanzado dentro de un `<Suspense>`,
+  Next agrega además `<meta http-equiv="refresh" content="1;url=/fumadocs-api-portal/…">`.
+  `PageRedirect` usa `redirect()` directo en modo servidor (307, como antes con
+  `next.config.mjs`) y la variante con `Suspense` en el export. Las carpetas (`/docs`,
+  `/api-store/blog`, …) se suman a `generateStaticParams` para que tengan su `index.html`.
+- **Prefetch en Windows**: al exportar en Windows, Next 16.4 guarda los datos de prefetch por
+  segmento en subcarpetas (`__next.!KGRvY3Mp\$c$slug\__PAGE__.txt`) en lugar de un archivo con
+  puntos (`__next.!KGRvY3Mp.$c$slug.__PAGE__.txt`), porque arma la ruta con `path.relative` y
+  después reemplaza solo `/`. Al servir ese `out/`, los prefetch dan 404 y la navegación igual
+  funciona (carga la página completa). En Linux, donde corre el deploy, los nombres salen bien.
+- `out/` está en `.gitignore`; después de `build:pages`, `git status` queda limpio.
+
 ## Qué costó
 
 - **Traducciones completas**: entre fumadocs-ui y fumadocs-openapi hay más de 200 claves y algunas solo se ven

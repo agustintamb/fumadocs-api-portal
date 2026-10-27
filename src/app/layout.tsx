@@ -7,6 +7,8 @@ import { es } from '@/i18n/es'
 import { translations } from '@/lib/translations'
 import './global.css'
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
 export const metadata: Metadata = {
   title: {
     default: es.site.title,
@@ -23,7 +25,13 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">
-        <RootProvider i18n={i18nProvider(translations)}>{children}</RootProvider>
+        <RootProvider
+          i18n={i18nProvider(translations)}
+          // Fumadocs can't infer Next's basePath, so the index URL carries it explicitly.
+          search={{ options: { type: 'static', api: `${basePath}/api/search` } }}
+        >
+          {children}
+        </RootProvider>
       </body>
     </html>
   )

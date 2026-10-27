@@ -23,12 +23,12 @@ src/
 
 ## Rutas
 
-| Carpeta                     | Contenido                                                     |
-| --------------------------- | ------------------------------------------------------------- |
-| `src/app/(home)/`           | Inicio, Dashboard y API Store, con el layout de Inicio        |
-| `src/app/(docs)/[...slug]/` | Documentación y referencia de las APIs, con el layout de Docs |
-| `src/app/api/proxy/`        | Proxy que usa el playground para evitar CORS                  |
-| `src/app/api/search/`       | Endpoint de búsqueda                                          |
+| Carpeta                     | Contenido                                                                |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `src/app/(home)/`           | Inicio, Dashboard y API Store, con el layout de Inicio                   |
+| `src/app/(docs)/[...slug]/` | Documentación y referencia de las APIs, con el layout de Docs            |
+| `src/app/api/proxy/`        | Proxy que usa el playground para evitar CORS (no existe en GitHub Pages) |
+| `src/app/api/search/`       | Índice de búsqueda, generado en el build                                 |
 
 Cada vista de `src/app/(home)/` tiene su `page.tsx`, un componente de página, una carpeta `_components/` y, si tiene lógica, un hook (`useX.ts`).
 
@@ -48,8 +48,9 @@ Cada vista de `src/app/(home)/` tiene su `page.tsx`, un componente de página, u
 ## Comandos
 
 ```bash
-npm run dev        # servidor de desarrollo
-npm run build      # build de producción
-npm test           # tests unitarios
-npm run test:e2e   # tests end-to-end
+npm run dev         # servidor de desarrollo
+npm run build       # build de producción
+npm run build:pages # export estático para GitHub Pages (en out/)
+npm test            # tests unitarios
+npm run test:e2e    # tests end-to-end
 ```

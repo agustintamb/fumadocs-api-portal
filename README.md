@@ -44,17 +44,18 @@ tarda. Para ver la velocidad real: `npm run build && npm start`.
 
 ## Comandos
 
-| Comando             | Qué hace                                                                                                              |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `npm install`       | Instala las dependencias.                                                                                             |
-| `npm run dev`       | Levanta el servidor de desarrollo en http://localhost:3000.                                                           |
-| `npm run build`     | Genera el build de producción.                                                                                        |
-| `npm run start`     | Sirve el build de producción (requiere `npm run build` antes).                                                        |
-| `npm test`          | Corre los tests unitarios (Vitest).                                                                                   |
-| `npm run test:e2e`  | Corre el smoke test de Playwright. Hace el build y levanta el servidor en el puerto 3100 si no hay uno corriendo ahí. |
-| `npm run lint`      | Corre ESLint.                                                                                                         |
-| `npm run typecheck` | Genera los tipos de Next (`next typegen`) y corre `tsc --noEmit`.                                                     |
-| `npm run spec:sync` | Copia la spec de la Portal API desde `../devportal-api/openapi/portal-api.json` a `apis/portal-api.json`.             |
+| Comando               | Qué hace                                                                                                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `npm install`         | Instala las dependencias.                                                                                                          |
+| `npm run dev`         | Levanta el servidor de desarrollo en http://localhost:3000.                                                                        |
+| `npm run build`       | Genera el build de producción.                                                                                                     |
+| `npm run build:pages` | Genera el export estático para GitHub Pages en `out/` (ver [Build estático para GitHub Pages](#build-estático-para-github-pages)). |
+| `npm run start`       | Sirve el build de producción (requiere `npm run build` antes).                                                                     |
+| `npm test`            | Corre los tests unitarios (Vitest).                                                                                                |
+| `npm run test:e2e`    | Corre el smoke test de Playwright. Hace el build y levanta el servidor en el puerto 3100 si no hay uno corriendo ahí.              |
+| `npm run lint`        | Corre ESLint.                                                                                                                      |
+| `npm run typecheck`   | Genera los tipos de Next (`next typegen`) y corre `tsc --noEmit`.                                                                  |
+| `npm run spec:sync`   | Copia la spec de la Portal API desde `../devportal-api/openapi/portal-api.json` a `apis/portal-api.json`.                          |
 
 Otros scripts: `lint:fix`, `format`, `format:check` y `test:watch`.
 
@@ -81,8 +82,10 @@ _route groups_, cada uno con su layout:
   (header arriba, barra lateral, contenido y tabla de contenidos). Una sola ruta catch-all,
   `[...slug]/page.tsx`, renderiza todas estas páginas.
 
-Además hay dos route handlers: `/api/search` (búsqueda) y `/api/proxy` (proxy del playground).
-Las páginas se generan estáticamente en el build (`generateStaticParams`).
+Además hay dos route handlers: `/api/search` (índice de búsqueda, generado en el build y
+consultado en el navegador) y `/api/proxy` (proxy del playground). Las páginas se generan
+estáticamente en el build (`generateStaticParams`). `/` e `/introduction` son páginas que
+redirigen (componente `PageRedirect`), así funcionan igual en el servidor y en el export estático.
 
 ### Las piezas de Fumadocs
 
@@ -110,7 +113,8 @@ apis/*.yaml ──(fumadocs-openapi)┘        (fumadocs-core)                  
    (endpoints con verbo bajo cada recurso), el de fumadocs-openapi (badges) y el de íconos Lucide.
 3. `[...slug]/page.tsx` busca la página: si es OpenAPI renderiza `<OpenApiPage>`, si es MDX su
    contenido con los componentes de `src/components/mdx.tsx`. Si la URL es una carpeta sin página
-   (`/docs`, `/api-store/blog`), redirige a su primera página.
+   (`/docs`, `/api-store/blog`), redirige a su primera página; `generateStaticParams` también
+   lista esas carpetas (`getFolderSlugs`) para que el export estático genere su redirección.
 4. `src/app/(docs)/layout.tsx` pasa el árbol al `DocsLayout`, que dibuja la barra lateral. Las
    carpetas con `root` en `meta.json` son secciones: la barra lateral muestra solo la sección
    actual, y entre secciones se navega con el header.
@@ -136,6 +140,7 @@ content/
   api-store/                Una carpeta por API con su meta.json (las páginas se generan)
 src/
   app/
+    page.tsx, introduction/ Páginas que redirigen a /home y a /docs/introduction
     (home)/                 Inicio, Dashboard y API Store: page.tsx + vista + hook + _components/
     (docs)/                 Layout Notebook y [...slug]/page.tsx (docs y referencia)
     api/search/, api/proxy/ Route handlers
@@ -148,6 +153,7 @@ src/
   data/                     Datos de ejemplo (catálogo, dashboard, clientes, footer)
   i18n/es.ts                Textos propios de la interfaz
 e2e/                        Smoke test y capturas (Playwright)
+scripts/                    sync-spec.mjs (spec:sync) y build-pages.mjs (build:pages)
 docs/screenshots/           Capturas referenciadas desde NOTES.md
 ```
 
@@ -267,10 +273,47 @@ estar clonado en la misma carpeta que este y compilado con `dotnet build`; si no
 spec, el script falla con un mensaje). Tampoco se edita a mano. Esta API se registra sin
 `proxyUrl` (ver [`NOTES.md`](NOTES.md#funciones-del-playground)).
 
+## Build estático para GitHub Pages
+
+`npm run build:pages` genera una versión estática del portal en `out/` (ignorada por git), para
+publicarla en GitHub Pages bajo `/fumadocs-api-portal`. `npm run dev` y
+`npm run build && npm start` no cambian.
+
+El script (`scripts/build-pages.mjs`, multiplataforma):
+
+1. Mueve `src/app/api/proxy/` a `node_modules/.cache/build-pages/` (Next no puede exportar un
+   route handler que necesita servidor) y borra los tipos de rutas viejos de `.next/`.
+2. Corre `next build` con `STATIC_EXPORT=1` y la base de las URLs en `PAGES_BASE_PATH` y
+   `NEXT_PUBLIC_BASE_PATH` (por defecto `/fumadocs-api-portal`; se cambia definiendo
+   `PAGES_BASE_PATH` antes de correrlo).
+3. Restaura la carpeta del proxy siempre, aunque el build falle o se corte con Ctrl+C. Si una
+   corrida anterior quedó a medias, la siguiente la restaura al empezar.
+
+Con `STATIC_EXPORT=1`, `next.config.mjs` activa `output: 'export'`, `basePath`, `assetPrefix` y
+`trailingSlash: true`, y `src/lib/openapi.ts` registra las APIs sin `proxyUrl`. La búsqueda usa
+el mismo índice estático en ambos modos (`staticGET` en `/api/search` y `type: 'static'` en el
+`RootProvider`, con el `basePath` explícito). Las redirecciones (`/`, `/introduction` y las
+carpetas como `/docs`) son páginas con `<meta http-equiv="refresh">`, además del redirect por JS.
+
+Después de `build:pages`, `.next/` queda con el build estático: para `npm start` hay que volver a
+correr `npm run build` (el e2e ya lo hace).
+
+Para revisar `out/` en local hay que servirlo bajo `/fumadocs-api-portal/` (por ejemplo, copiarlo
+a `<carpeta>/fumadocs-api-portal/` y correr `npx serve <carpeta>`).
+
+Limitaciones del sitio estático:
+
+- **Sin proxy**: el playground de Petstore, Blog y Auth llama directo desde el navegador a cada
+  servidor, que puede rechazar la solicitud por CORS. Petstore, además, tiene un server relativo
+  (`/api/v3`) que en Pages apunta al propio sitio. La Portal API funciona porque permite CORS
+  desde `https://agustintamb.github.io`.
+- **Sin redirecciones del servidor**: las redirecciones son páginas HTML (sin código 307).
+- Ver otros detalles en [`NOTES.md`](NOTES.md#build-estático-para-github-pages).
+
 ## Limitaciones conocidas
 
 - El proxy del playground (`/api/proxy`) acepta cualquier host público; para producción
   convendría limitarlo con `allowedOrigins`.
-- El sitio necesita un servidor Node (route handlers y redirecciones). Un hosting solo estático,
-  como GitHub Pages, requiere exportarlo (`output: 'export'`) y prescindir del proxy.
+- En GitHub Pages (`npm run build:pages`) no hay proxy ni servidor: ver
+  [Build estático para GitHub Pages](#build-estático-para-github-pages).
 - El resto de las diferencias con Zudoku están en [`NOTES.md`](NOTES.md#qué-falta-respecto-de-zudoku).

@@ -6,11 +6,13 @@ import {
   DocsTitle,
 } from 'fumadocs-ui/layouts/notebook/page'
 import { flattenTree } from 'fumadocs-core/page-tree'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { getMDXComponents } from '@/components/mdx'
 import { OpenApiPage } from '@/components/OpenApiPage'
+import { PageRedirect } from '@/components/PageRedirect'
 import { es } from '@/i18n/es'
 import { findPageNeighbours } from '@/utils/find-page-neighbours'
+import { getFolderSlugs } from '@/utils/get-folder-slugs'
 import type { Metadata } from 'next'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 
@@ -23,7 +25,7 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
     const first = flattenTree(source.getPageTree().children).find((item) =>
       item.url.startsWith(prefix),
     )
-    if (first) redirect(first.url)
+    if (first) return <PageRedirect url={first.url} />
     notFound()
   }
 
@@ -63,7 +65,10 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
 }
 
 export async function generateStaticParams() {
-  return source.generateParams()
+  const pageUrls = source.getPages().map((page) => page.url)
+  // `/api-store` is the catalog page of the (home) group, not a folder redirect.
+  const folders = getFolderSlugs(pageUrls, ['/api-store']).map((slug) => ({ slug }))
+  return [...source.generateParams(), ...folders]
 }
 
 export async function generateMetadata(
