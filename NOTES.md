@@ -259,3 +259,21 @@ ya no existen y las de la Portal API pasaron a `/api-store/portal/v1/…` y `/ap
   y el texto "Fumadocs". `es.site.title` ("Portal de APIs · Fumadocs") se mantiene para el
   `<title>` de las páginas; el header muestra solo "Fumadocs".
 - Las capturas en modo claro y oscuro están en `docs/screenshots/`.
+
+## Verificación del API Store (27/10)
+
+Verificado con Playwright (headless) contra https://agustintamb.github.io/fumadocs-api-portal/. La
+Portal API de Render se despertó con `/health` (200) antes de las pruebas del playground.
+
+1. **Redirecciones de carpeta**: OK. `api-store/portal/` termina en `portal/v2/salud/`,
+   `api-store/petstore/` en `petstore/v3/pet/` y `api-store/pokeapi/` en `pokeapi/pokemon/`
+   (carga la página de endpoints).
+2. **Badges**: OK. En `api-store/` Portal API muestra "Interna" (y "beta"); Petstore y PokeAPI
+   muestran "Pública" (ambas "estable"). La página de Portal v2 muestra "Interna" y "beta" junto
+   al título.
+3. **Playground Petstore v3, POST /pet sin api_key**: FALLA. Devuelve 500, no 200. El cuerpo de
+   ejemplo que envía el playground es `{"name":"doggie","photoUrls":["string"]}` (sin `id`) y el
+   servidor público petstore3.swagger.io responde 500 también con curl. Con un `id` en el cuerpo
+   responde 200, así que el problema es el ejemplo generado, no el playground. No se corrigió.
+4. **Playground PokeAPI, GET /api/v2/pokemon/{id} con id=pikachu**: OK, 200 (id 25).
+5. **Playground Portal API v2, GET /v2/apis**: OK, 200 con `items`, `page`, `pageSize` y `total`.
