@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "spec:sync": "node scripts/sync-spec.mjs"
+    "spec:sync": "node scripts/sync-spec.mjs",
+    "spec:vendor": "node scripts/vendor-specs.mjs"
   },
   "dependencies": {
     "fumadocs-core": "16.17.8",
@@ -49,6 +50,7 @@
     "postcss": "^8.5.31",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "swagger2openapi": "^7.0.8",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0",
     "vitest": "^5.0.5"

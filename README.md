@@ -56,6 +56,7 @@ tarda. Para ver la velocidad real: `npm run build && npm start`.
 | `npm run lint`        | Corre ESLint.                                                                                                                      |
 | `npm run typecheck`   | Genera los tipos de Next (`next typegen`) y corre `tsc --noEmit`.                                                                  |
 | `npm run spec:sync`   | Copia la spec de la Portal API desde `../devportal-api/openapi/portal-api.json` a `apis/portal-api.json`.                          |
+| `npm run spec:vendor` | Descarga las specs de Petstore (v2 y v3) y PokeAPI a `apis/` (ver [Specs de terceros](#specs-de-terceros-vendorizadas)).           |
 
 Otros scripts: `lint:fix`, `format`, `format:check` y `test:watch`.
 
@@ -277,15 +278,63 @@ toma su URL del nombre del tag en minúsculas, con guiones y sin tildes (`Autent
 `content/api-store/blog/`: una carpeta por versión, todas con el id de la API como `root` (en
 Blog, `"blog"`).
 
-Los archivos de `apis/` son copias byte a byte de los del sandbox. No se editan; si cambian, se
-reemplaza el archivo completo.
+Los YAML del sandbox en `apis/` (`openapi.yaml`, `blog-api*.yaml`, `auth-api.yaml`) son copias
+byte a byte de los del sandbox. No se editan; si cambian, se reemplaza el archivo completo. Las
+excepciones son la spec de la Portal API y las specs de terceros (ver abajo).
 
-La excepción es `apis/portal-api.json`, la spec de la API propia del portal (repo
+`apis/portal-api.json` es la spec de la API propia del portal (repo
 `devportal-api`). No viene del sandbox: la genera el build del backend y se actualiza solo con
 `npm run spec:sync`, que la copia desde `../devportal-api/openapi/` (el repo del backend tiene que
 estar clonado en la misma carpeta que este y compilado con `dotnet build`; si no encuentra la
 spec, el script falla con un mensaje). Tampoco se edita a mano. Esta API se registra sin
 `proxyUrl` (ver [`NOTES.md`](NOTES.md#funciones-del-playground)).
+
+### Specs de terceros (vendorizadas)
+
+Las specs de APIs públicas se descargan una vez del proveedor y se guardan en el repo
+("vendorizar"): el build no depende de internet y un cambio del proveedor no rompe nada sin
+aviso. Se actualizan solo con `npm run spec:vendor` (`scripts/vendor-specs.mjs`), nunca a mano:
+
+| Archivo                         | Origen                                                                 | Qué cambia el script                                    |
+| ------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------- |
+| `apis/petstore-v3.json`         | `https://petstore3.swagger.io/api/v3/openapi.json` (OpenAPI 3.0)       | `servers` → `https://petstore3.swagger.io/api/v3`       |
+| `apis/petstore-v2.swagger.json` | `https://petstore.swagger.io/v2/swagger.json` (Swagger 2.0)            | Nada: es el original, para comparar con la conversión   |
+| `apis/petstore-v2.json`         | El anterior, convertido a OpenAPI 3 con `swagger2openapi`              | `servers` → `https://petstore.swagger.io/v2` (sin http) |
+| `apis/pokeapi.yaml`             | `https://raw.githubusercontent.com/PokeAPI/pokeapi/master/openapi.yml` | `servers` → `https://pokeapi.co`                        |
+
+- Los JSON se escriben con 2 espacios de sangría, así el diff entre versiones se puede leer.
+- El YAML de PokeAPI queda igual al del proveedor salvo el bloque `servers` (se edita como texto
+  y el script verifica que el resto del documento no cambió). Hoy el proveedor ya trae
+  `https://pokeapi.co`, así que el archivo es idéntico al original; si lo sacara, el script lo
+  vuelve a agregar antes de `paths`.
+- La salida es determinística: correr el script dos veces seguidas no deja cambios.
+
+Para actualizarlas: correr `npm run spec:vendor`, revisar `git diff apis/` (rutas nuevas o
+borradas, cambios de `info.version`) y probar el playground de cada API antes de commitear.
+
+**Riesgos de la conversión de Petstore v2.** `swagger2openapi` convierte bien lo esencial, pero
+la spec del proveedor tiene detalles que en el playground pueden verse raros. No se corrigen: lo
+único que se toca son los `servers`.
+
+- **Credenciales**: la spec declara `api_key` (header) y OAuth implícito (`petstore_auth`, con
+  `authorizationUrl` en `https://petstore.swagger.io/oauth/authorize`), pero el servidor no las
+  exige. En el playground se pueden dejar vacías o escribir cualquier valor; el login OAuth no
+  funciona. Lo mismo vale para Petstore v3.
+- **Respuestas sin documentar**: `POST /pet`, `PUT /pet` y `POST /pet/{petId}` solo declaran
+  códigos de error (400/404/405) y los `/user` de escritura solo `default`. El servidor responde
+  200 con datos, que el playground muestra igual, pero la página no tiene el esquema del 200.
+- **`consumes`/`produces`**: pasan a `content` con `application/json` y `application/xml` en
+  cuerpos y respuestas. El servidor elige el formato según el header `Accept`; si una respuesta
+  llega en XML, revisar qué tipo eligió el playground.
+- **Formularios y archivos**: `POST /pet/{petId}/uploadImage` queda como `multipart/form-data`
+  con `file` (`format: binary`) y `POST /pet/{petId}` como `application/x-www-form-urlencoded`.
+- **Arrays en la query**: `status` de `GET /pet/findByStatus` (antes `collectionFormat: multi`)
+  queda con `explode: true` (`?status=available&status=sold`) y su valor por defecto pasa a los
+  ítems del array.
+- **Cuerpos compartidos**: el cuerpo de `POST /pet` y `PUT /pet` pasa a
+  `components/requestBodies/Pet`, y el de `createWithArray`/`createWithList` a `UserArray`.
+- **Servers**: la conversión genera uno `https` y otro `http`; el script deja solo el `https`
+  (desde Pages el navegador bloquearía el `http`).
 
 ### URL de la Portal API por ambiente
 
