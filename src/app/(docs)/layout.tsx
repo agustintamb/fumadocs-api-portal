@@ -2,6 +2,7 @@ import { source } from '@/lib/source'
 import { DocsLayout } from 'fumadocs-ui/layouts/notebook'
 import { DocsHeader } from '@/components/SiteHeader/DocsHeader'
 import { VersionSelect } from '@/components/VersionSelect'
+import { getNavLinks } from '@/lib/folder-links'
 import { baseOptions } from '@/lib/layout.shared'
 import { getVersionTabs } from '@/utils/get-version-tabs'
 
@@ -22,7 +23,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       tree={tree}
       tabs={false}
       sidebar={{ banner: <VersionSelect tabs={versionTabs} /> }}
-      {...baseOptions()}
+      {...baseOptions(getNavLinks())}
       nav={{ mode: 'top' }}
       slots={{ header: DocsHeader }}
       // Same width as HomeLayout, so the header looks the same on every page.

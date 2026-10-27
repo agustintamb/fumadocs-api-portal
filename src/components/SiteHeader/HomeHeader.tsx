@@ -11,10 +11,11 @@ import {
 import { NavLink } from '@/components/NavLink'
 import { SiteHeader } from '@/components/SiteHeader'
 import { es } from '@/i18n/es'
-import { NAV_LINKS } from '@/lib/layout.shared'
+import { useNavLinks } from '@/components/NavLink/NavLinksProvider'
 
 export function HomeHeader() {
   const [open, setOpen] = useState(false)
+  const navLinks = useNavLinks()
 
   return (
     <SiteHeader
@@ -34,9 +35,9 @@ export function HomeHeader() {
           <PopoverContent align="end" onClick={() => setOpen(false)}>
             <nav aria-label={es.nav.label}>
               <ul className="flex flex-col gap-3 p-2">
-                {NAV_LINKS.map(({ text, url, active }) => (
+                {navLinks.map(({ text, url, active, href = url }) => (
                   <li key={url}>
-                    <NavLink href={url} match={active}>
+                    <NavLink href={href} activeUrl={url} match={active}>
                       {text}
                     </NavLink>
                   </li>

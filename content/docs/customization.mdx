@@ -30,7 +30,7 @@ La tipografía es Geist (sans y mono). Se carga en `src/app/layout.tsx` con el p
 ## Header y logo
 
 - El header es el mismo en todas las secciones: `src/components/SiteHeader/`.
-- Los links del navbar se definen en `NAV_LINKS`, dentro de `src/lib/layout.shared.tsx`.
+- Los links del navbar se definen en `NAV_LINKS`, dentro de `src/lib/layout.shared.tsx`. Los que apuntan a una carpeta sin página propia (`/docs`) van directo a su primera página, calculada desde el árbol de páginas (`src/lib/folder-links.ts`).
 - El logo es un componente de React (`src/components/SiteLogo/index.tsx`) y no una imagen, por lo que toma el color primario del tema.
 
 <Callout type="info" title="Menú en pantallas chicas">

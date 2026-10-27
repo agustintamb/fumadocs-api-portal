@@ -5,7 +5,7 @@ vi.mock('server-only', () => ({}))
 
 describe('getApiCatalog', () => {
   it('derives versions and endpoint counts from the specs', async () => {
-    const catalog = await getApiCatalog()
+    const catalog = await getApiCatalog((href) => href)
     expect(catalog.map((a) => [a.id, a.version, a.endpoints])).toEqual([
       ['portal', 'v1 / v2', '14 / 14'],
       ['petstore', 'v2 / v3', '20 / 19'],

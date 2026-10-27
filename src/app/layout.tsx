@@ -3,7 +3,9 @@ import { GeistSans } from 'geist/font/sans'
 import { i18nProvider } from 'fumadocs-ui/i18n'
 import { RootProvider } from 'fumadocs-ui/provider/next'
 import type { Metadata } from 'next'
+import { NavLinksProvider } from '@/components/NavLink/NavLinksProvider'
 import { es } from '@/i18n/es'
+import { getNavLinks } from '@/lib/folder-links'
 import { translations } from '@/lib/translations'
 import './global.css'
 
@@ -30,7 +32,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
           // Fumadocs can't infer Next's basePath, so the index URL carries it explicitly.
           search={{ options: { type: 'static', api: `${basePath}/api/search` } }}
         >
-          {children}
+          <NavLinksProvider links={getNavLinks()}>{children}</NavLinksProvider>
         </RootProvider>
       </body>
     </html>

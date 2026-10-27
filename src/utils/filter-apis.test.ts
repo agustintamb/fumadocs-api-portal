@@ -6,6 +6,7 @@ const apis: ApiCardData[] = API_CATALOG.map((api) => ({
   ...api,
   version: 'v1',
   endpoints: '1',
+  docsUrl: api.path,
 }))
 
 describe('filterApis', () => {

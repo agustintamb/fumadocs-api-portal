@@ -24,6 +24,8 @@ export interface ApiEntry {
 export interface ApiCardData extends ApiEntry {
   version: string
   endpoints: string
+  // First page of the API's docs; `path` is its folder, which has no page of its own.
+  docsUrl: string
 }
 
 // Same catalog (order and values) as the backend's seed.sql in devportal-api.

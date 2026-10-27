@@ -127,8 +127,11 @@ apis/*.{json,yaml} (fumadocs-openapi)─┘        (fumadocs-core)              
    (endpoints con verbo bajo cada recurso), el de fumadocs-openapi (badges) y el de íconos Lucide.
 3. `[...slug]/page.tsx` busca la página: si es OpenAPI renderiza `<OpenApiPage>`, si es MDX su
    contenido con los componentes de `src/components/mdx.tsx`. Si la URL es una carpeta sin página
-   (`/docs`, `/api-store/portal`), redirige a su primera página; `generateStaticParams` también
-   lista esas carpetas (`getFolderSlugs`) para que el export estático genere su redirección.
+   (`/docs`, `/api-store/portal`), redirige a su primera página (`getFirstPageUrl`); en el export
+   estático muestra un esqueleto de la página mientras redirige. `generateStaticParams` también
+   lista esas carpetas (`getFolderSlugs`) para que el export estático genere su redirección. Los
+   links propios (navbar, tarjetas del API Store, footer, MDX) no pasan por ahí: apuntan directo a
+   la primera página (`resolveFolderLink` en `src/lib/folder-links.ts`).
 4. `src/app/(docs)/layout.tsx` pasa el árbol al `DocsLayout`, que dibuja la barra lateral. Las
    carpetas con `root` en `meta.json` son secciones: la barra lateral muestra solo la sección
    actual, y entre secciones se navega con el header.

@@ -33,7 +33,7 @@ export function ApiCard({ api }: ApiCardProps) {
         <strong className="text-fd-foreground">{api.category}</strong>
       </p>
       <Link
-        href={api.path}
+        href={api.docsUrl}
         className="bg-fd-primary text-fd-primary-foreground block w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90"
       >
         {es.apiStore.viewDocs}

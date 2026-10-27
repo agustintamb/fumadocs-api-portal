@@ -48,6 +48,10 @@ test.describe('desktop header', () => {
         'Documentación',
         'API Store',
       ])
+      // Docs has no page of its own: the link goes straight to its first page.
+      await expect(
+        header.getByRole('link', { name: 'Documentación', exact: true }),
+      ).toHaveAttribute('href', /\/docs\/introduction\/?$/)
       await expect(header.getByRole('button', { name: /^Buscar/ })).toBeVisible()
       await expect(header.getByRole('button', { name: 'Cambiar tema' })).toBeVisible()
       await expect(page.locator('img[src*="logo-"]')).toHaveCount(0)
@@ -217,6 +221,12 @@ test('publishes the portal api in the api store', async ({ page }) => {
   await expect(page.getByRole('article').filter({ hasText: 'Portal API' })).toContainText(
     'Plataforma',
   )
+  await expect(
+    page
+      .getByRole('article')
+      .filter({ hasText: 'Portal API' })
+      .getByRole('link', { name: 'Ver documentación' }),
+  ).toHaveAttribute('href', /\/api-store\/portal\/v2\/salud\/?$/)
 
   // Resources follow the spec's tag order, in both versions.
   const sidebar = page.locator('#nd-sidebar')

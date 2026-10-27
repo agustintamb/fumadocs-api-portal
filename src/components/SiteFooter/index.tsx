@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { FOOTER_COLUMNS } from '@/data/footer'
 import { es } from '@/i18n/es'
+import { resolveFolderLink } from '@/lib/folder-links'
 
 export function SiteFooter() {
   return (
@@ -16,7 +17,7 @@ export function SiteFooter() {
               {column.links.map((link) => (
                 <li key={link.href}>
                   <Link
-                    href={link.href}
+                    href={resolveFolderLink(link.href)}
                     className="text-fd-muted-foreground hover:text-fd-foreground text-sm"
                   >
                     {link.label}

@@ -11,22 +11,35 @@ async function readSpec(file: string): Promise<unknown> {
   return parse(source)
 }
 
-async function toCardData(entry: ApiEntry): Promise<ApiCardData> {
+async function toCardData(
+  entry: ApiEntry,
+  resolveLink: (href: string) => string,
+): Promise<ApiCardData> {
   const documents = await Promise.all(entry.specs.map((spec) => readSpec(spec.file)))
   const counts = documents.map(countOperations)
+  const docsUrl = resolveLink(entry.path)
 
   if (entry.specs.length === 1) {
     const info = (documents[0] as { info?: { version?: string } }).info
-    return { ...entry, version: `v${info?.version ?? ''}`, endpoints: String(counts[0]) }
+    return {
+      ...entry,
+      version: `v${info?.version ?? ''}`,
+      endpoints: String(counts[0]),
+      docsUrl,
+    }
   }
 
   return {
     ...entry,
     version: entry.specs.map((spec) => spec.label).join(' / '),
     endpoints: counts.join(' / '),
+    docsUrl,
   }
 }
 
-export function getApiCatalog(): Promise<ApiCardData[]> {
-  return Promise.all(API_CATALOG.map(toCardData))
+// `resolveLink` maps each API folder to its first page (see resolveFolderLink).
+export function getApiCatalog(
+  resolveLink: (href: string) => string,
+): Promise<ApiCardData[]> {
+  return Promise.all(API_CATALOG.map((entry) => toCardData(entry, resolveLink)))
 }

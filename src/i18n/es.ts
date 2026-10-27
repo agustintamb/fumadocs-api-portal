@@ -85,4 +85,7 @@ export const es = {
     description: 'La página que se busca no existe o se movió.',
     action: 'Volver al inicio',
   },
+  docs: {
+    loading: 'Cargando página…',
+  },
 } as const
