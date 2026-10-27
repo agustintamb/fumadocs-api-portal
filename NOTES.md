@@ -95,7 +95,8 @@ desde localhost) y acepta cualquier host público; para producción convendría 
   Docs y a las APIs se llega desde el navbar. Cada API tiene su propio tipo de `root` en
   `meta.json` (`"petstore"`, `"auth"`, `"blog"` en v1 y v2), así el desplegable de Fumadocs
   (`SidebarTabsDropdown`) agrupa solo las versiones de esa API. Las pestañas salen de
-  `getLayoutTabs` (`src/utils/get-version-tabs.ts`) con el `info.version` de cada spec como
+  `getVersionTabs` (`src/utils/get-version-tabs.ts`, una versión de `getLayoutTabs` que
+  entiende las carpetas de endpoints) con el `info.version` de cada spec como
   título, leído con `getSchema()` de la primera página generada de cada carpeta (las páginas
   MDX no lo tienen, así Docs queda sin selector). El desplegable nativo del layout no se
   puede deshabilitar, así que se desactiva (`tabs={false}`) y el mismo componente se monta en el
@@ -142,7 +143,7 @@ desde localhost) y acepta cualquier host público; para producción convendría 
   un shell `__next_error__` vacío.
 - Fumadocs no tiene un token de radio de borde; los componentes propios usan `rounded-lg`.
 
-## Alternativas previstas en el plan (Tasks 3 y 4)
+## Alternativas previstas en el plan (plan original, Tasks 3 y 4)
 
 - **Task 3**: el plan preveía mover `introduction.mdx` a la raíz si una carpeta `(grupo)` no
   podía ser raíz. Después se movió a `content/docs` (URL `/docs/introduction`), con `root: true`.

@@ -1,1 +1,1 @@
-{ "title": "Blog API", "root": true, "pages": ["v1", "v2"] }
+{ "title": "Blog API", "pages": ["v1", "v2"] }
