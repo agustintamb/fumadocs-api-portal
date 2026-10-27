@@ -10,7 +10,7 @@ describe('getApiCatalog', () => {
       ['petstore', 'v1.0.19', '19'],
       ['blog', 'v1 / v2', '10 / 12'],
       ['auth', 'v2.0.0', '10'],
-      ['portal', 'v1.0.0', '12'],
+      ['portal', 'v1.0.0', '14'],
     ])
   })
 })
