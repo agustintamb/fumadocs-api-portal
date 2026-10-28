@@ -29,6 +29,12 @@ export function ApiStorePage({ apis }: ApiStorePageProps) {
       </header>
 
       <div className="mb-6 flex flex-col gap-4">
+        <FilterChips
+          options={visibilityOptions}
+          value={visibility}
+          onChange={handleVisibilityChange}
+          label={es.apiStore.filtersLabel}
+        />
         <input
           type="search"
           value={query}
@@ -36,12 +42,6 @@ export function ApiStorePage({ apis }: ApiStorePageProps) {
           placeholder={es.apiStore.searchPlaceholder}
           aria-label={es.apiStore.searchLabel}
           className="bg-fd-background border-fd-border placeholder:text-fd-muted-foreground focus-visible:ring-fd-primary w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus-visible:ring-2"
-        />
-        <FilterChips
-          options={visibilityOptions}
-          value={visibility}
-          onChange={handleVisibilityChange}
-          label={es.apiStore.filtersLabel}
         />
       </div>
 
