@@ -13,12 +13,12 @@ export interface ApiStorePageProps {
 export function ApiStorePage({ apis }: ApiStorePageProps) {
   const {
     query,
-    apiFilter,
-    filterOptions,
+    visibility,
+    visibilityOptions,
     filtered,
     isEmpty,
     handleQueryChange,
-    handleApiFilterChange,
+    handleVisibilityChange,
   } = useApiStorePage(apis)
 
   return (
@@ -38,9 +38,9 @@ export function ApiStorePage({ apis }: ApiStorePageProps) {
           className="bg-fd-background border-fd-border placeholder:text-fd-muted-foreground focus-visible:ring-fd-primary w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus-visible:ring-2"
         />
         <FilterChips
-          options={filterOptions}
-          value={apiFilter}
-          onChange={handleApiFilterChange}
+          options={visibilityOptions}
+          value={visibility}
+          onChange={handleVisibilityChange}
           label={es.apiStore.filtersLabel}
         />
       </div>

@@ -4,6 +4,9 @@ Relevamiento de `fumadocs-openapi` **12.5.5** (versión instalada en `node_modul
 última publicada al 27/10/2026), con `fumadocs-ui`/`fumadocs-core` 16.17.8. Rutas de la librería
 relativas a `node_modules/fumadocs-openapi/dist/`.
 
+> Las rutas de la columna "Tipo en la librería" y las de las tablas (`ui/…`, `utils/…`,
+> `playground/…`) son archivos de esa carpeta del paquete, no del repo.
+
 Leyenda: ✅ probado en la PoC · 📄 confirmado en el código, no probado · ❌ no se puede (sin copiar
 el código).
 
@@ -39,9 +42,11 @@ Además:
   `api-docs/schema`) copia el componente al repo para editarlo; se conecta con
   `playground.render: () => <PlaygroundClient />`. `npx @fumadocs/cli customise` (con "s") es
   para los layouts de fumadocs-ui, no para OpenAPI.
-- **Lab**: copia del playground (CLI, sin cambios) en `src/lab/components/openapi/playground`,
-  usada solo por la ruta oculta `/lab/portal/v1/...` y `/lab/portal/v2/...` (`src/app/(lab)`).
-  Se quita borrando `src/app/(lab)` y `src/lab`.
+- **Lab**: copia del playground tal como la genera la CLI (sin cambios de comportamiento, solo los
+  ajustes de imports/tipos para compilar) en `src/components/lab/components` y
+  `src/components/lab/lib`, usada solo por la ruta oculta `/lab/portal/v1/...` y
+  `/lab/portal/v2/...` (`src/app/(lab)`), con una franja fija al pie de la pantalla.
+  Se quita borrando `src/app/(lab)` y `src/components/lab`.
 
 ## Qué se puede hacer por zona
 

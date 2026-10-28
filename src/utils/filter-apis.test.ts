@@ -18,8 +18,9 @@ describe('filterApis', () => {
     expect(filterApis(apis, 'subscriptions', 'all').map((a) => a.id)).toEqual(['portal'])
   })
 
-  it('combines chip and query', () => {
-    expect(filterApis(apis, 'jwt', 'pokeapi')).toEqual([])
+  it('combines visibility and query', () => {
+    expect(filterApis(apis, 'jwt', 'public')).toEqual([])
+    expect(filterApis(apis, '', 'public').map((a) => a.id)).toEqual(['petstore', 'pokeapi'])
   })
 
   it('ignores surrounding spaces', () => {

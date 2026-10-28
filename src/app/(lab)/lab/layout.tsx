@@ -1,10 +1,10 @@
 import { DocsLayout } from 'fumadocs-ui/layouts/notebook'
 import type { Metadata } from 'next'
+import { getLabTree, getPortalPage } from '@/components/lab/utils/lab-source'
 import { DocsHeader } from '@/components/SiteHeader/DocsHeader'
 import { VersionSelect } from '@/components/VersionSelect'
 import { getNavLinks } from '@/lib/folder-links'
 import { baseOptions } from '@/lib/layout.shared'
-import { getLabTree, getPortalPage } from '@/lab/lab-source'
 import { getVersionTabs } from '@/utils/get-version-tabs'
 import { LabBanner } from './_components/LabBanner'
 
@@ -25,7 +25,6 @@ export default function Layout({ children }: LayoutProps<'/lab'>) {
 
   return (
     <>
-      <LabBanner />
       <DocsLayout
         tree={tree}
         tabs={false}
@@ -37,6 +36,7 @@ export default function Layout({ children }: LayoutProps<'/lab'>) {
       >
         {children}
       </DocsLayout>
+      <LabBanner />
     </>
   )
 }

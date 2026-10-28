@@ -219,8 +219,11 @@ test('publishes the portal api in the api store', async ({ page }) => {
   await page.goto('/api-store')
   await expect(page.getByRole('article')).toHaveCount(3)
   await expect(page.getByRole('article').filter({ hasText: 'Portal API' })).toContainText(
-    'Plataforma',
+    'Interna',
   )
+  await page.getByRole('button', { name: 'Públicas' }).click()
+  await expect(page.getByRole('article')).toHaveCount(2)
+  await page.getByRole('button', { name: 'Todas' }).click()
   await expect(
     page
       .getByRole('article')
@@ -261,7 +264,7 @@ test('marks apis as internal or public', async ({ page }) => {
   await page.goto('/api-store/portal/v2/salud')
   const titleRow = page.locator('div:has(> h1)').first()
   await expect(titleRow.getByText('Interna', { exact: true })).toBeVisible()
-  await expect(titleRow.getByText('beta', { exact: true })).toBeVisible()
+  await expect(titleRow.getByText('beta', { exact: true })).toHaveCount(0)
 
   await page.goto('/docs/introduction')
   for (const text of ['Interna', 'Pública'])

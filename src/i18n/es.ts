@@ -60,19 +60,16 @@ export const es = {
       'Todas las referencias de APIs en un solo lugar. Cada API incluye documentación interactiva, esquemas de solicitud y respuesta, y un playground para probarla.',
     searchPlaceholder: 'Buscar APIs por nombre, descripción o tag…',
     searchLabel: 'Buscar APIs',
-    filtersLabel: 'Filtrar por API',
+    filtersLabel: 'Filtrar por tipo de API',
     filter: {
       all: 'Todas',
+      public: 'Públicas',
+      internal: 'Internas',
     },
     empty: 'Ninguna API coincide con la búsqueda.',
     version: 'Versión',
     endpoints: 'Endpoints',
     viewDocs: 'Ver documentación →',
-    status: {
-      stable: 'estable',
-      beta: 'beta',
-      deprecated: 'obsoleta',
-    },
     visibility: {
       internal: 'Interna',
       public: 'Pública',
@@ -92,5 +89,6 @@ export const es = {
     title: 'Lab — playground experimental',
     description:
       'Copia local del playground para experimentar. No es la versión oficial.',
+    close: 'Cerrar aviso',
   },
 } as const

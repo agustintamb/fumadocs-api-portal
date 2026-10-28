@@ -11,15 +11,13 @@ const apis: ApiCardData[] = API_CATALOG.map((api) => ({
 }))
 
 describe('useApiStorePage', () => {
-  it('starts with all apis and the "Todas" chip first', () => {
+  it('starts with all apis and the visibility chips', () => {
     const { result } = renderHook(() => useApiStorePage(apis))
     expect(result.current.filtered).toHaveLength(3)
-    expect(result.current.filterOptions[0]).toEqual({ value: 'all', label: 'Todas' })
-    expect(result.current.filterOptions.map((o) => o.value)).toEqual([
-      'all',
-      'portal',
-      'petstore',
-      'pokeapi',
+    expect(result.current.visibilityOptions.map((o) => o.label)).toEqual([
+      'Todas',
+      'Públicas',
+      'Internas',
     ])
   })
 
@@ -29,10 +27,10 @@ describe('useApiStorePage', () => {
     expect(result.current.isEmpty).toBe(true)
   })
 
-  it('filters by chip', () => {
+  it('filters by visibility', () => {
     const { result } = renderHook(() => useApiStorePage(apis))
-    act(() => result.current.handleApiFilterChange('pokeapi'))
-    expect(result.current.filtered.map((a) => a.id)).toEqual(['pokeapi'])
-    expect(result.current.apiFilter).toBe('pokeapi')
+    act(() => result.current.handleVisibilityChange('internal'))
+    expect(result.current.filtered.map((a) => a.id)).toEqual(['portal'])
+    expect(result.current.visibility).toBe('internal')
   })
 })

@@ -6,7 +6,7 @@ import {
   DocsTitle,
 } from 'fumadocs-ui/layouts/notebook/page'
 import { notFound } from 'next/navigation'
-import { ApiBadges } from '@/components/ApiBadges'
+import { ApiVisibilityBadge } from '@/components/ApiVisibilityBadge'
 import { getMDXComponents } from '@/components/mdx'
 import { API_CATALOG } from '@/data/apis'
 import { OpenApiPage } from '@/components/OpenApiPage'
@@ -55,7 +55,7 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <DocsTitle>{data.title}</DocsTitle>
-          {api && <ApiBadges status={api.status} visibility={api.visibility} />}
+          {api && <ApiVisibilityBadge visibility={api.visibility} />}
         </div>
         <DocsBody>
           <OpenApiPage {...data.getOpenAPIPageProps()} />

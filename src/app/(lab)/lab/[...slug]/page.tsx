@@ -1,10 +1,15 @@
 import { DocsBody, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/notebook/page'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { ApiBadges } from '@/components/ApiBadges'
+import { ApiVisibilityBadge } from '@/components/ApiVisibilityBadge'
 import { API_CATALOG } from '@/data/apis'
-import { OpenApiLabPage } from '@/lab/OpenApiLabPage'
-import { getLabParams, getLabTree, getPortalPage, toLabUrl } from '@/lab/lab-source'
+import { OpenApiLabPage } from '@/components/lab/OpenApiLabPage'
+import {
+  getLabParams,
+  getLabTree,
+  getPortalPage,
+  toLabUrl,
+} from '@/components/lab/utils/lab-source'
 import { findApiByUrl } from '@/utils/find-api-by-url'
 import { findPageNeighbours } from '@/utils/find-page-neighbours'
 
@@ -23,7 +28,7 @@ export default async function Page(props: PageProps<'/lab/[...slug]'>) {
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <DocsTitle>{data.title}</DocsTitle>
-        {api && <ApiBadges status={api.status} visibility={api.visibility} />}
+        {api && <ApiVisibilityBadge visibility={api.visibility} />}
       </div>
       <DocsBody>
         <OpenApiLabPage {...data.getOpenAPIPageProps()} />
